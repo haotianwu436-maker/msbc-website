@@ -1,32 +1,21 @@
-# MSBC 响应式设计待办清单
+# MSBC 更新待办清单
 
-## 全局与组件
-- [ ] index.css 全局响应式样式（字体大小、间距缩放）
-- [ ] Header 移动端汉堡菜单交互
-- [ ] Footer 移动端堆叠布局
-- [ ] SectionHeading 移动端字号缩放
-- [ ] Countdown 移动端紧凑布局
+## 页面过渡动画
+- [ ] 创建 PageTransition 组件（framer-motion AnimatePresence）
+- [ ] 在 App.tsx 中集成页面过渡
+- [ ] 确保所有路由切换都有平滑动画
 
-## 主页章节
-- [ ] Hero 区域（标题、CTA、倒计时）
-- [ ] Stats 统计数据行
-- [ ] About 区域（图文布局）
-- [ ] Speakers 卡片网格
-- [ ] Agenda 时间线
-- [ ] Hackathon 全幅区域
-- [ ] Universities 卡片网格
-- [ ] Sponsors 分层展示
-- [ ] FAQ 折叠面板
-- [ ] Final CTA 区域
-
-## 内页
-- [ ] Speakers 页面
-- [ ] Agenda 页面
-- [ ] Hackathon 页面
-- [ ] Sponsors 页面
-- [ ] BecomeSponsor 页面
-- [ ] Tickets 页面
-- [ ] Universities 页面
-- [ ] FAQ 页面
-- [ ] Contact 页面
-- [ ] NotFound 页面
+## 后台管理面板
+- [ ] 创建 /admin 路由和管理面板布局
+- [ ] 实现站点设置编辑（日期、地点、链接）
+- [ ] 实现演讲者管理（增删改）
+- [ ] 实现议程管理
+- [ ] 实现赞助商管理
+- [ ] 实现大学管理
+- [ ] 实现 FAQ 管理
+- [ ] 实现联系方式管理
+- [ ] 实现黑客马拉松内容编辑
+- [ ] 实现门票内容编辑
+- [ ] 添加数据导出/导入功能
+- [ ] 添加实时预览功能
+- [ ] 添加简单密码保护
