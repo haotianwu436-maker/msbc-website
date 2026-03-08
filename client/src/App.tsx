@@ -18,7 +18,6 @@ import Tickets from "./pages/Tickets";
 import Universities from "./pages/Universities";
 import Faq from "./pages/Faq";
 import Contact from "./pages/Contact";
-import Admin from "./pages/Admin";
 
 function Router() {
   return (
@@ -36,7 +35,6 @@ function Router() {
       <Route path="/2026/universities" component={Universities} />
       <Route path="/2026/faq" component={Faq} />
       <Route path="/2026/contact" component={Contact} />
-      <Route path="/admin" component={Admin} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>
