@@ -1,7 +1,6 @@
 /**
  * MSBC SectionHeading — "Stage Presence" Design
- * Oversized headline with mono label and optional subtitle.
- * No decorative dividers — typography IS the design.
+ * Oversized headline with mono label. Responsive spacing.
  */
 import { motion } from "framer-motion";
 
@@ -28,11 +27,11 @@ export default function SectionHeading({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={`max-w-3xl mb-14 md:mb-20 ${alignClass}`}
+      className={`max-w-3xl mb-8 sm:mb-12 md:mb-16 lg:mb-20 ${alignClass}`}
     >
       {label && (
         <span
-          className="inline-block text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-4"
+          className="inline-block text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-3 sm:mb-4"
           style={{ fontFamily: "var(--font-mono)" }}
         >
           {label}
@@ -43,7 +42,7 @@ export default function SectionHeading({
       </h2>
       {subtitle && (
         <p
-          className={`mt-5 text-base md:text-lg leading-relaxed ${
+          className={`mt-3 sm:mt-5 text-sm sm:text-base md:text-lg leading-relaxed ${
             align === "center" ? "mx-auto max-w-2xl" : ""
           } text-[#6B7280]`}
           style={{ fontFamily: "var(--font-body)" }}

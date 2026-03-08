@@ -1,8 +1,7 @@
 /**
  * MSBC Homepage — "Stage Presence" Design
- * TOKEN2049-grade conference homepage.
- * Void Black + Electric Blue + Platinum White. No amber. No rounded corners.
- * Oversized headlines, editorial spacing, architectural precision.
+ * TOKEN2049-grade conference homepage. Fully responsive.
+ * Void Black + Electric Blue + Platinum White.
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -25,7 +24,6 @@ import {
   ArrowUpRight,
   Clock,
   ChevronDown,
-  ExternalLink,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -45,7 +43,7 @@ const stagger = (i: number) => ({
 function HeroSection() {
   const { hero } = homepageContent;
   return (
-    <section className="relative min-h-screen flex items-end overflow-hidden">
+    <section className="relative min-h-[85vh] sm:min-h-screen flex items-end overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0">
         <img src={ASSETS.heroBg} alt="" className="w-full h-full object-cover" />
@@ -53,26 +51,26 @@ function HeroSection() {
       </div>
 
       {/* Spotlight radial */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.08)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90%] sm:w-[80%] h-[60%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.08)_0%,_transparent_70%)] pointer-events-none" />
 
-      <div className="container relative z-10 pb-20 md:pb-28 pt-32">
+      <div className="container relative z-10 pb-12 sm:pb-16 md:pb-20 lg:pb-28 pt-24 sm:pt-28 md:pt-32">
         <div className="max-w-5xl">
           {/* Date / Location — mono label */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6 }}
-            className="flex items-center gap-4 mb-8"
+            className="flex flex-wrap items-center gap-2 sm:gap-4 mb-5 sm:mb-8"
           >
             <span
-              className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB]"
+              className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB]"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               Aug 15–17, 2026
             </span>
-            <span className="w-6 h-[1px] bg-white/20" />
+            <span className="w-4 sm:w-6 h-[1px] bg-white/20" />
             <span
-              className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]"
+              className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               Kuala Lumpur, Malaysia
@@ -96,7 +94,7 @@ function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="mt-6 text-lg md:text-xl text-[#9CA3AF] max-w-2xl leading-relaxed"
+            className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-[#9CA3AF] max-w-2xl leading-relaxed"
             style={{ fontFamily: "var(--font-body)" }}
           >
             {hero.headline}
@@ -107,7 +105,7 @@ function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.45 }}
-            className="mt-10 flex flex-wrap gap-4"
+            className="mt-6 sm:mt-8 md:mt-10 flex flex-col sm:flex-row gap-3 sm:gap-4"
           >
             <Link href={hero.primaryCta.url} className="btn-primary">
               {hero.primaryCta.label}
@@ -123,7 +121,7 @@ function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="mt-14"
+            className="mt-8 sm:mt-10 md:mt-14"
           >
             <Countdown />
           </motion.div>
@@ -137,13 +135,13 @@ function HeroSection() {
 function StatsBar() {
   return (
     <section className="border-y border-white/[0.06]">
-      <div className="container py-14 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+      <div className="container py-8 sm:py-12 md:py-16">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 md:gap-12">
           {homepageContent.stats.map((stat, i) => (
             <motion.div key={stat.label} {...stagger(i)} className="text-center">
               <div className="stat-number">{stat.value}</div>
               <div
-                className="text-[11px] tracking-[0.1em] uppercase text-[#6B7280] mt-2"
+                className="text-[9px] sm:text-[10px] md:text-[11px] tracking-[0.1em] uppercase text-[#6B7280] mt-1.5 sm:mt-2"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 {stat.label}
@@ -161,23 +159,23 @@ function AboutSection() {
   const { about } = homepageContent;
   return (
     <SectionWrapper id="about" spotlight>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-24 items-center">
         <div>
           <SectionHeading label="About MSBC" title={about.sectionTitle} align="left" />
           <p
-            className="text-base md:text-lg text-[#9CA3AF] leading-[1.8]"
+            className="text-sm sm:text-base md:text-lg text-[#9CA3AF] leading-[1.7] sm:leading-[1.8]"
             style={{ fontFamily: "var(--font-body)" }}
           >
             {about.bodyCopy}
           </p>
           <p
-            className="mt-4 text-sm text-[#2563EB]"
+            className="mt-3 sm:mt-4 text-xs sm:text-sm text-[#2563EB]"
             style={{ fontFamily: "var(--font-mono)" }}
           >
             Built in Kuala Lumpur. Connected across Asia.
           </p>
         </div>
-        <div className="relative">
+        <div className="relative order-first lg:order-last">
           <img
             src={ASSETS.aboutVisual}
             alt="MSBC Network"
@@ -200,14 +198,14 @@ function SpeakersPreview() {
         title={content.sectionTitle}
         subtitle={content.bodyCopy}
       />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
         {featured.map((speaker, i) => (
           <motion.div
             key={speaker.speakerId}
             {...stagger(i)}
             className="conference-card p-0 overflow-hidden group"
           >
-            {/* Photo — square, sharp corners */}
+            {/* Photo — square */}
             <div className="aspect-square overflow-hidden bg-[#1F2937]">
               <img
                 src={speaker.photo}
@@ -215,21 +213,21 @@ function SpeakersPreview() {
                 className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
               />
             </div>
-            <div className="p-5">
+            <div className="p-3 sm:p-4 md:p-5">
               <h3
-                className="text-sm md:text-base font-semibold text-[#F0F2F8]"
+                className="text-xs sm:text-sm md:text-base font-semibold text-[#F0F2F8] leading-tight"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 {speaker.fullName}
               </h3>
               <p
-                className="text-xs md:text-sm text-[#2563EB] mt-1"
+                className="text-[10px] sm:text-xs md:text-sm text-[#2563EB] mt-1"
                 style={{ fontFamily: "var(--font-body)" }}
               >
                 {speaker.title}
               </p>
               <p
-                className="text-xs text-[#6B7280] mt-0.5"
+                className="text-[10px] sm:text-xs text-[#6B7280] mt-0.5 hidden sm:block"
                 style={{ fontFamily: "var(--font-body)" }}
               >
                 {speaker.organisation}
@@ -238,7 +236,7 @@ function SpeakersPreview() {
           </motion.div>
         ))}
       </div>
-      <div className="mt-14 text-center">
+      <div className="mt-8 sm:mt-12 md:mt-14 text-center">
         <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
@@ -260,47 +258,47 @@ function AgendaPreview() {
         title={content.sectionTitle}
         subtitle={content.bodyCopy}
       />
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {featured.map((session, i) => (
           <motion.div
             key={session.sessionId}
             {...stagger(i)}
-            className="conference-card flex flex-col md:flex-row md:items-center gap-4 p-5 md:p-6"
+            className="conference-card flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 p-4 sm:p-5 md:p-6"
           >
             {/* Time */}
-            <div className="flex items-center gap-2 md:w-44 shrink-0">
-              <Clock className="w-3.5 h-3.5 text-[#2563EB]" />
+            <div className="flex items-center gap-2 sm:w-40 md:w-44 shrink-0">
+              <Clock className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#2563EB]" />
               <span
-                className="text-sm text-[#9CA3AF]"
+                className="text-xs sm:text-sm text-[#9CA3AF]"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 {session.startTime} – {session.endTime}
               </span>
             </div>
             {/* Content */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-1.5">
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-1 sm:mb-1.5">
                 <span
-                  className="text-[10px] font-medium tracking-[0.08em] uppercase px-2.5 py-1 border border-[#2563EB]/20 text-[#2563EB]"
+                  className="text-[9px] sm:text-[10px] font-medium tracking-[0.08em] uppercase px-2 py-0.5 sm:py-1 border border-[#2563EB]/20 text-[#2563EB]"
                   style={{ fontFamily: "var(--font-mono)" }}
                 >
                   {session.format.replace("_", " ")}
                 </span>
                 <span
-                  className="text-[10px] tracking-[0.08em] uppercase text-[#6B7280]"
+                  className="text-[9px] sm:text-[10px] tracking-[0.08em] uppercase text-[#6B7280]"
                   style={{ fontFamily: "var(--font-mono)" }}
                 >
                   {session.track}
                 </span>
               </div>
               <h3
-                className="text-base md:text-lg font-semibold text-[#F0F2F8]"
+                className="text-sm sm:text-base md:text-lg font-semibold text-[#F0F2F8] leading-tight"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 {session.title}
               </h3>
               <p
-                className="text-sm text-[#6B7280] mt-1 line-clamp-1"
+                className="text-xs sm:text-sm text-[#6B7280] mt-1 line-clamp-1 hidden sm:block"
                 style={{ fontFamily: "var(--font-body)" }}
               >
                 {session.shortDescription}
@@ -309,7 +307,7 @@ function AgendaPreview() {
           </motion.div>
         ))}
       </div>
-      <div className="mt-14 text-center">
+      <div className="mt-8 sm:mt-12 md:mt-14 text-center">
         <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
@@ -328,14 +326,13 @@ function HackathonPreview() {
         <img src={ASSETS.hackathonBg} alt="" className="w-full h-full object-cover opacity-40" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#07090F] via-[#07090F]/80 to-[#07090F]/60" />
       </div>
-      {/* Spotlight */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[50%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.1)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] sm:w-[60%] h-[50%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.1)_0%,_transparent_70%)] pointer-events-none" />
 
       <div className="container section-padding relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div {...fadeUp}>
             <span
-              className="inline-block text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-6"
+              className="inline-block text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-4 sm:mb-6"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               Hackathon
@@ -344,12 +341,12 @@ function HackathonPreview() {
               {content.sectionTitle}
             </h2>
             <p
-              className="mt-6 text-base md:text-lg text-[#9CA3AF] leading-relaxed max-w-2xl mx-auto"
+              className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-[#9CA3AF] leading-relaxed max-w-2xl mx-auto"
               style={{ fontFamily: "var(--font-body)" }}
             >
               {content.bodyCopy}
             </p>
-            <div className="mt-10">
+            <div className="mt-6 sm:mt-8 md:mt-10">
               <Link href={content.ctaUrl} className="btn-primary">
                 {content.ctaLabel}
                 <ArrowUpRight className="w-4 h-4" />
@@ -372,21 +369,21 @@ function UniversitiesPreview() {
         title={content.sectionTitle}
         subtitle={content.bodyCopy}
       />
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4 md:gap-6">
         {universities.slice(0, 6).map((uni, i) => (
           <motion.div
             key={uni.universityId}
             {...stagger(i)}
-            className="conference-card p-5 md:p-6 text-center"
+            className="conference-card p-4 sm:p-5 md:p-6 text-center"
           >
             <div
-              className="text-2xl md:text-3xl font-bold text-[#2563EB]/30 mb-3"
+              className="text-xl sm:text-2xl md:text-3xl font-bold text-[#2563EB]/30 mb-2 sm:mb-3"
               style={{ fontFamily: "var(--font-display)" }}
             >
               {uni.universityName.split(" ").map(w => w[0]).join("").slice(0, 3)}
             </div>
             <p
-              className="text-[11px] md:text-xs text-[#9CA3AF] leading-tight"
+              className="text-[10px] sm:text-[11px] md:text-xs text-[#9CA3AF] leading-tight"
               style={{ fontFamily: "var(--font-body)" }}
             >
               {uni.universityName}
@@ -394,7 +391,7 @@ function UniversitiesPreview() {
           </motion.div>
         ))}
       </div>
-      <div className="mt-14 text-center">
+      <div className="mt-8 sm:mt-12 md:mt-14 text-center">
         <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
@@ -429,18 +426,18 @@ function SponsorsPreview() {
         title={content.sectionTitle}
         subtitle={content.bodyCopy}
       />
-      <div className="space-y-12">
+      <div className="space-y-8 sm:space-y-10 md:space-y-12">
         {grouped.map((group) => (
           <div key={group.tier}>
-            <div className="text-center mb-6">
+            <div className="text-center mb-4 sm:mb-6">
               <span
-                className="text-[10px] font-medium tracking-[0.12em] uppercase text-[#6B7280]"
+                className="text-[9px] sm:text-[10px] font-medium tracking-[0.12em] uppercase text-[#6B7280]"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 {group.label}
               </span>
             </div>
-            <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 lg:gap-10">
               {group.items.map((sponsor, i) => (
                 <motion.a
                   key={sponsor.sponsorId}
@@ -450,14 +447,14 @@ function SponsorsPreview() {
                   {...stagger(i)}
                   className={`conference-card flex items-center justify-center group ${
                     group.tier === "title"
-                      ? "w-32 h-32 md:w-40 md:h-40"
+                      ? "w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40"
                       : group.tier === "platinum"
-                      ? "w-28 h-28 md:w-32 md:h-32"
-                      : "w-20 h-20 md:w-24 md:h-24"
+                      ? "w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 lg:w-32 lg:h-32"
+                      : "w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24"
                   }`}
                 >
                   <span
-                    className="text-xs md:text-sm text-[#6B7280] group-hover:text-[#F0F2F8] transition-colors text-center px-2"
+                    className="text-[10px] sm:text-xs md:text-sm text-[#6B7280] group-hover:text-[#F0F2F8] transition-colors text-center px-1 sm:px-2 leading-tight"
                     style={{ fontFamily: "var(--font-display)" }}
                   >
                     {sponsor.companyName}
@@ -468,7 +465,7 @@ function SponsorsPreview() {
           </div>
         ))}
       </div>
-      <div className="mt-16 flex flex-wrap justify-center gap-4">
+      <div className="mt-10 sm:mt-14 md:mt-16 flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
         <Link href={content.cta1Url} className="btn-secondary">
           {content.cta1Label}
           <ArrowRight className="w-4 h-4" />
@@ -495,15 +492,15 @@ function FaqPreview() {
         title={content.sectionTitle}
         subtitle={content.bodyCopy}
       />
-      <div className="max-w-3xl mx-auto space-y-2">
+      <div className="max-w-3xl mx-auto space-y-1 sm:space-y-2">
         {previewFaqs.map((faq) => (
           <div key={faq.faqId} className="border-b border-white/[0.06]">
             <button
               onClick={() => setOpenId(openId === faq.faqId ? null : faq.faqId)}
-              className="w-full flex items-center justify-between py-5 text-left group"
+              className="w-full flex items-center justify-between py-4 sm:py-5 text-left group"
             >
               <span
-                className="text-sm md:text-base font-medium text-[#F0F2F8] pr-4 group-hover:text-[#2563EB] transition-colors"
+                className="text-sm sm:text-base font-medium text-[#F0F2F8] pr-3 sm:pr-4 group-hover:text-[#2563EB] transition-colors leading-snug"
                 style={{ fontFamily: "var(--font-display)" }}
               >
                 {faq.question}
@@ -518,10 +515,10 @@ function FaqPreview() {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
-                className="pb-5"
+                className="pb-4 sm:pb-5"
               >
                 <p
-                  className="text-sm text-[#9CA3AF] leading-relaxed"
+                  className="text-xs sm:text-sm text-[#9CA3AF] leading-relaxed"
                   style={{ fontFamily: "var(--font-body)" }}
                 >
                   {faq.answer}
@@ -531,7 +528,7 @@ function FaqPreview() {
           </div>
         ))}
       </div>
-      <div className="mt-14 text-center">
+      <div className="mt-8 sm:mt-12 md:mt-14 text-center">
         <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
@@ -545,14 +542,13 @@ function FaqPreview() {
 function FinalCtaSection() {
   return (
     <section className="relative overflow-hidden">
-      {/* Spotlight */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[80%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.06)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] sm:w-[60%] h-[80%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.06)_0%,_transparent_70%)] pointer-events-none" />
       <div className="horizon-glow" />
       <div className="container section-padding relative z-10">
         <div className="max-w-3xl mx-auto text-center">
           <motion.div {...fadeUp}>
             <span
-              className="inline-block text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-6"
+              className="inline-block text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-4 sm:mb-6"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               Join Us
@@ -561,12 +557,12 @@ function FinalCtaSection() {
               Be Part of What's Next
             </h2>
             <p
-              className="mt-6 text-base md:text-lg text-[#9CA3AF] leading-relaxed max-w-2xl mx-auto"
+              className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-[#9CA3AF] leading-relaxed max-w-2xl mx-auto"
               style={{ fontFamily: "var(--font-body)" }}
             >
               Join 700+ students, builders, and ecosystem leaders in Kuala Lumpur for three days of talks, workshops, hackathon experiences, and meaningful connections.
             </p>
-            <div className="mt-10 flex flex-wrap justify-center gap-4">
+            <div className="mt-6 sm:mt-8 md:mt-10 flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4">
               <Link href="/2026/tickets" className="btn-primary">
                 Register Now
                 <ArrowUpRight className="w-4 h-4" />

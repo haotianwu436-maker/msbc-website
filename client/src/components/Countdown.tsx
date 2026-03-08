@@ -1,6 +1,6 @@
 /**
  * MSBC Countdown — "Stage Presence" Design
- * Mono-spaced countdown with architectural precision. No glass cards.
+ * Mono-spaced countdown. Fully responsive for mobile.
  */
 import { useState, useEffect } from "react";
 import { eventEdition } from "@/lib/data";
@@ -39,18 +39,18 @@ export default function Countdown() {
   }, []);
 
   return (
-    <div className="flex items-center gap-3 md:gap-5">
+    <div className="flex items-center gap-2 sm:gap-3 md:gap-5">
       {units.map((unit, i) => (
-        <div key={unit.label} className="flex items-center gap-3 md:gap-5">
+        <div key={unit.label} className="flex items-center gap-2 sm:gap-3 md:gap-5">
           <div className="text-center">
             <div
-              className="text-3xl md:text-5xl font-medium text-[#F0F2F8] tabular-nums"
+              className="text-2xl sm:text-3xl md:text-5xl font-medium text-[#F0F2F8] tabular-nums"
               style={{ fontFamily: "var(--font-mono)" }}
             >
-              {String(unit.value).padStart(2, "0")}
+              {String(unit.value).padStart(unit.label === "Days" ? 1 : 2, "0")}
             </div>
             <div
-              className="text-[10px] md:text-[11px] tracking-[0.1em] uppercase text-[#6B7280] mt-1.5"
+              className="text-[8px] sm:text-[10px] md:text-[11px] tracking-[0.1em] uppercase text-[#6B7280] mt-1 sm:mt-1.5"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               {unit.label}
@@ -58,7 +58,7 @@ export default function Countdown() {
           </div>
           {i < units.length - 1 && (
             <span
-              className="text-2xl md:text-4xl text-[#2563EB]/40 font-light select-none"
+              className="text-lg sm:text-2xl md:text-4xl text-[#2563EB]/40 font-light select-none"
               style={{ fontFamily: "var(--font-mono)" }}
             >
               :

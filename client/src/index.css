@@ -146,6 +146,7 @@
     font-feature-settings: "ss01", "ss02";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -164,16 +165,27 @@
     letter-spacing: -0.02em;
     line-height: 1.1;
   }
+  /* Prevent horizontal overflow on mobile */
+  img, video, svg {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 @layer components {
-  /* Container */
+  /* Container — responsive padding */
   .container {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  @media (min-width: 480px) {
+    .container {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
   }
   @media (min-width: 640px) {
     .container {
@@ -199,10 +211,16 @@
     min-width: 0;
   }
 
-  /* Section spacing — generous editorial rhythm */
+  /* Section spacing — responsive editorial rhythm */
   .section-padding {
-    padding-top: 5rem;
-    padding-bottom: 5rem;
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+  }
+  @media (min-width: 640px) {
+    .section-padding {
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
   }
   @media (min-width: 768px) {
     .section-padding {
@@ -217,10 +235,16 @@
     }
   }
 
-  /* Inner page hero */
+  /* Inner page hero — responsive */
   .page-hero {
-    padding-top: 8rem;
-    padding-bottom: 4rem;
+    padding-top: 6rem;
+    padding-bottom: 2.5rem;
+  }
+  @media (min-width: 640px) {
+    .page-hero {
+      padding-top: 7rem;
+      padding-bottom: 3rem;
+    }
   }
   @media (min-width: 768px) {
     .page-hero {
@@ -263,21 +287,23 @@
     z-index: 0;
   }
 
-  /* Premium button styles */
+  /* Premium button styles — responsive */
   .btn-primary {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    padding: 0.875rem 2rem;
+    padding: 0.75rem 1.5rem;
     background: oklch(0.65 0.2 250);
     color: white;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     letter-spacing: 0.01em;
     border-radius: 4px;
     transition: all 0.2s ease;
     text-decoration: none;
+    white-space: nowrap;
   }
   .btn-primary:hover {
     background: oklch(0.7 0.2 250);
@@ -286,38 +312,47 @@
   .btn-secondary {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    padding: 0.875rem 2rem;
+    padding: 0.75rem 1.5rem;
     background: transparent;
     color: oklch(0.95 0.005 260);
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: 0.9375rem;
+    font-size: 0.875rem;
     letter-spacing: 0.01em;
     border: 1px solid oklch(1 0 0 / 0.15);
     border-radius: 4px;
     transition: all 0.2s ease;
     text-decoration: none;
+    white-space: nowrap;
   }
   .btn-secondary:hover {
     border-color: oklch(0.65 0.2 250 / 0.5);
     color: oklch(0.65 0.2 250);
   }
+  @media (min-width: 640px) {
+    .btn-primary,
+    .btn-secondary {
+      padding: 0.875rem 2rem;
+      font-size: 0.9375rem;
+    }
+  }
 
-  /* Stat number style */
+  /* Stat number style — responsive */
   .stat-number {
     font-family: var(--font-mono);
     font-weight: 500;
-    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-size: clamp(1.75rem, 5vw, 4rem);
     line-height: 1;
     color: oklch(0.65 0.2 250);
   }
 
-  /* Oversized headline */
+  /* Oversized headline — responsive */
   .headline-xl {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(2.75rem, 6vw, 5.5rem);
+    font-size: clamp(2rem, 7vw, 5.5rem);
     line-height: 1.05;
     letter-spacing: -0.03em;
     color: oklch(0.95 0.005 260);
@@ -326,7 +361,7 @@
   .headline-lg {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-size: clamp(1.5rem, 4.5vw, 3.5rem);
     line-height: 1.1;
     letter-spacing: -0.025em;
     color: oklch(0.95 0.005 260);
@@ -335,18 +370,28 @@
   /* Label / tag style */
   .label-mono {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.6875rem;
     font-weight: 500;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: oklch(0.65 0.2 250);
   }
+  @media (min-width: 640px) {
+    .label-mono {
+      font-size: 0.75rem;
+    }
+  }
 
-  /* Muted body text */
+  /* Muted body text — responsive */
   .body-muted {
     font-family: var(--font-body);
-    font-size: 1.0625rem;
+    font-size: 0.9375rem;
     line-height: 1.7;
     color: oklch(0.55 0.01 260);
+  }
+  @media (min-width: 640px) {
+    .body-muted {
+      font-size: 1.0625rem;
+    }
   }
 }

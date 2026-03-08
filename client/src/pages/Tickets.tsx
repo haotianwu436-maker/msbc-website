@@ -1,6 +1,6 @@
 /**
  * MSBC Tickets & Registration Page — "Stage Presence" Design
- * Clean ticket cards with external Luma links. Sharp, commercial.
+ * Clean ticket cards with external Luma links. Fully responsive.
  */
 import { motion } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
@@ -21,25 +21,23 @@ export default function Tickets() {
 
   return (
     <PageLayout>
-      {/* Hero */}
       <section className="page-hero">
         <div className="container">
           <SectionHeading label="Registration" title={c.heroHeadline} subtitle={c.heroSupportingCopy} />
-          <div className="flex flex-wrap justify-center gap-6 mt-2">
-            <span className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-2">
+            <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
               Aug 15–17, 2026
             </span>
-            <span className="w-6 h-[1px] bg-white/20 self-center" />
-            <span className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
+            <span className="w-4 sm:w-6 h-[1px] bg-white/20 self-center" />
+            <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
               Kuala Lumpur, Malaysia
             </span>
           </div>
         </div>
       </section>
 
-      {/* Ticket Cards */}
       <SectionWrapper>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 max-w-4xl mx-auto">
           {c.ticketTypes.map((ticket, i) => {
             const status = statusStyles[ticket.status] || statusStyles.open;
             const isClickable = ticket.status === "open";
@@ -50,32 +48,32 @@ export default function Tickets() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className={`conference-card p-6 flex flex-col ${
+                className={`conference-card p-4 sm:p-6 flex flex-col ${
                   i === 0 ? "border-[#2563EB]/30" : ""
                 }`}
               >
-                <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center justify-between mb-3 sm:mb-5">
                   <span
-                    className="text-[11px] font-medium tracking-[0.1em] uppercase text-[#6B7280]"
+                    className="text-[10px] sm:text-[11px] font-medium tracking-[0.1em] uppercase text-[#6B7280]"
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
                     Ticket
                   </span>
                   <span
-                    className={`text-[10px] font-medium tracking-[0.08em] uppercase px-2.5 py-1 border ${status.border} ${status.text}`}
+                    className={`text-[9px] sm:text-[10px] font-medium tracking-[0.08em] uppercase px-2 sm:px-2.5 py-0.5 sm:py-1 border ${status.border} ${status.text}`}
                     style={{ fontFamily: "var(--font-mono)" }}
                   >
                     {status.label}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-[#F0F2F8]" style={{ fontFamily: "var(--font-display)" }}>
+                <h3 className="text-base sm:text-lg font-semibold text-[#F0F2F8]" style={{ fontFamily: "var(--font-display)" }}>
                   {ticket.name}
                 </h3>
-                <div className="stat-number mt-3">{ticket.price}</div>
-                <p className="text-sm text-[#6B7280] mt-4 flex-1 leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
+                <div className="stat-number mt-2 sm:mt-3">{ticket.price}</div>
+                <p className="text-xs sm:text-sm text-[#6B7280] mt-3 sm:mt-4 flex-1 leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
                   {ticket.description}
                 </p>
-                <div className="mt-6">
+                <div className="mt-4 sm:mt-6">
                   {isClickable ? (
                     <a
                       href={ticket.ctaUrl}
@@ -89,7 +87,7 @@ export default function Tickets() {
                   ) : (
                     <button
                       disabled
-                      className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-medium bg-white/[0.03] text-[#6B7280] border border-white/[0.06] cursor-not-allowed"
+                      className="w-full inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-medium bg-white/[0.03] text-[#6B7280] border border-white/[0.06] cursor-not-allowed"
                       style={{ fontFamily: "var(--font-display)" }}
                     >
                       {ticket.ctaLabel}
@@ -102,10 +100,9 @@ export default function Tickets() {
         </div>
       </SectionWrapper>
 
-      {/* Info Note */}
       <SectionWrapper elevated>
         <div className="max-w-2xl mx-auto text-center">
-          <p className="text-sm text-[#6B7280] leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
+          <p className="text-xs sm:text-sm text-[#6B7280] leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
             Registration is handled through Luma. By registering, you will receive event updates, venue details, and access information directly to your email.
           </p>
         </div>

@@ -1,6 +1,6 @@
 /**
  * MSBC FAQ Page — "Stage Presence" Design
- * Categorized accordion FAQ. Sharp edges, mono labels.
+ * Categorized accordion FAQ. Fully responsive.
  */
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -28,7 +28,6 @@ export default function Faq() {
 
   return (
     <PageLayout>
-      {/* Hero */}
       <section className="page-hero">
         <div className="container">
           <SectionHeading label="Support" title="Frequently Asked Questions" subtitle={homepageContent.faq.bodyCopy} />
@@ -36,13 +35,13 @@ export default function Faq() {
       </section>
 
       <SectionWrapper>
-        {/* Category Tabs */}
-        <div className="flex flex-wrap gap-2 mb-10">
+        {/* Category Tabs — horizontal scroll on mobile */}
+        <div className="flex gap-1.5 sm:gap-2 mb-6 sm:mb-10 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => { setActiveCategory(cat); setOpenId(null); }}
-              className={`px-4 py-2 text-sm font-medium transition-all ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
                 activeCategory === cat
                   ? "bg-[#2563EB] text-white"
                   : "bg-white/[0.03] text-[#6B7280] hover:text-[#F0F2F8] border border-white/[0.06]"
@@ -55,7 +54,7 @@ export default function Faq() {
         </div>
 
         {/* FAQ Items */}
-        <div className="max-w-3xl mx-auto space-y-2">
+        <div className="max-w-3xl mx-auto space-y-1.5 sm:space-y-2">
           {filtered.map((faq, i) => (
             <motion.div
               key={faq.faqId}
@@ -66,16 +65,16 @@ export default function Faq() {
             >
               <button
                 onClick={() => setOpenId(openId === faq.faqId ? null : faq.faqId)}
-                className="w-full flex items-center justify-between p-5 text-left"
+                className="w-full flex items-center justify-between p-3 sm:p-4 md:p-5 text-left"
               >
-                <span className="text-sm md:text-base font-medium text-[#F0F2F8] pr-4" style={{ fontFamily: "var(--font-display)" }}>
+                <span className="text-xs sm:text-sm md:text-base font-medium text-[#F0F2F8] pr-3 sm:pr-4" style={{ fontFamily: "var(--font-display)" }}>
                   {faq.question}
                 </span>
-                <ChevronDown className={`w-4 h-4 text-[#2563EB] shrink-0 transition-transform duration-200 ${openId === faq.faqId ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2563EB] shrink-0 transition-transform duration-200 ${openId === faq.faqId ? "rotate-180" : ""}`} />
               </button>
               {openId === faq.faqId && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-5 pb-5">
-                  <p className="text-sm text-[#9CA3AF] leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 sm:px-4 md:px-5 pb-3 sm:pb-4 md:pb-5">
+                  <p className="text-xs sm:text-sm text-[#9CA3AF] leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
                     {faq.answer}
                   </p>
                 </motion.div>
@@ -85,11 +84,10 @@ export default function Faq() {
         </div>
       </SectionWrapper>
 
-      {/* Still have questions */}
       <SectionWrapper elevated>
         <div className="max-w-2xl mx-auto text-center">
           <h3 className="headline-sm text-[#F0F2F8]">Still Have Questions?</h3>
-          <p className="text-sm text-[#6B7280] mt-4 mb-8" style={{ fontFamily: "var(--font-body)" }}>
+          <p className="text-xs sm:text-sm text-[#6B7280] mt-3 sm:mt-4 mb-5 sm:mb-8" style={{ fontFamily: "var(--font-body)" }}>
             If you cannot find the answer you are looking for, feel free to reach out to the MSBC team directly.
           </p>
           <Link href="/2026/contact" className="btn-primary">
