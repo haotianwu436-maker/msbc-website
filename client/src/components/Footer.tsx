@@ -1,53 +1,46 @@
 /**
- * MSBC Footer
- * Design: "Luminal Horizon" — Minimal dark footer with amber accents
+ * MSBC Footer — "Stage Presence" Design
+ * Minimal, architectural footer. Precision dividers, mono labels.
  */
 import { Link } from "wouter";
-import { siteSettings, navigation } from "@/lib/data";
+import { siteSettings, navigation, eventEdition } from "@/lib/data";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#080E1A] border-t border-white/5">
-      <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+    <footer className="border-t border-white/[0.06]">
+      <div className="container py-16 md:py-20">
+        {/* Top row */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 md:gap-8">
           {/* Brand */}
-          <div className="lg:col-span-1">
-            <Link to="/2026" className="inline-block">
-              <span className="font-display text-2xl font-bold text-white">MSBC</span>
-            </Link>
-            <p className="mt-3 text-sm text-slate-400 font-body leading-relaxed max-w-xs">
-              Malaysia Student Blockchain Conference. Built in Kuala Lumpur. Connected across Asia.
-            </p>
-            <div className="flex gap-3 mt-5">
-              {siteSettings.socialLinks.map((link) => (
-                <a
-                  key={link.platform}
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-9 h-9 flex items-center justify-center rounded-lg bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 transition-all text-sm font-medium"
-                  aria-label={link.label}
-                >
-                  {link.platform === "twitter" && "X"}
-                  {link.platform === "telegram" && "TG"}
-                  {link.platform === "linkedin" && "LI"}
-                  {link.platform === "instagram" && "IG"}
-                </a>
-              ))}
+          <div className="md:col-span-4">
+            <div className="flex items-center gap-3 mb-5">
+              <span className="text-xl font-bold tracking-tight text-[#F0F2F8]" style={{ fontFamily: "var(--font-display)" }}>
+                MSBC
+              </span>
+              <span className="text-[10px] font-medium px-2 py-1 border border-white/[0.12] text-[#2563EB] tracking-[0.08em] uppercase" style={{ fontFamily: "var(--font-mono)" }}>
+                {eventEdition.editionYear}
+              </span>
             </div>
+            <p className="text-sm text-[#6B7280] leading-relaxed max-w-xs" style={{ fontFamily: "var(--font-body)" }}>
+              {eventEdition.eventTagline}
+            </p>
+            <p className="text-sm text-[#6B7280] mt-2" style={{ fontFamily: "var(--font-body)" }}>
+              {eventEdition.city}, {eventEdition.country}
+            </p>
           </div>
 
           {/* Navigation */}
-          <div>
-            <h4 className="font-display text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-              Conference
+          <div className="md:col-span-3">
+            <h4 className="text-[11px] font-medium tracking-[0.1em] uppercase text-[#6B7280] mb-5" style={{ fontFamily: "var(--font-mono)" }}>
+              Navigate
             </h4>
-            <ul className="space-y-2.5">
-              {navigation.mainNav.slice(0, 4).map((item) => (
+            <ul className="space-y-3">
+              {navigation.mainNav.slice(0, 5).map((item) => (
                 <li key={item.label}>
                   <Link
-                    to={item.url}
-                    className="text-sm text-slate-400 hover:text-amber-400 transition-colors font-body"
+                    href={item.url}
+                    className="text-sm text-[#9CA3AF] hover:text-[#F0F2F8] transition-colors"
+                    style={{ fontFamily: "var(--font-body)" }}
                   >
                     {item.label}
                   </Link>
@@ -56,17 +49,18 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* More Links */}
-          <div>
-            <h4 className="font-display text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-              Explore
+          {/* More */}
+          <div className="md:col-span-3">
+            <h4 className="text-[11px] font-medium tracking-[0.1em] uppercase text-[#6B7280] mb-5" style={{ fontFamily: "var(--font-mono)" }}>
+              More
             </h4>
-            <ul className="space-y-2.5">
-              {navigation.mainNav.slice(4).map((item) => (
+            <ul className="space-y-3">
+              {navigation.mainNav.slice(5).map((item) => (
                 <li key={item.label}>
                   <Link
-                    to={item.url}
-                    className="text-sm text-slate-400 hover:text-amber-400 transition-colors font-body"
+                    href={item.url}
+                    className="text-sm text-[#9CA3AF] hover:text-[#F0F2F8] transition-colors"
+                    style={{ fontFamily: "var(--font-body)" }}
                   >
                     {item.label}
                   </Link>
@@ -74,16 +68,18 @@ export default function Footer() {
               ))}
               <li>
                 <Link
-                  to="/2026/tickets"
-                  className="text-sm text-slate-400 hover:text-amber-400 transition-colors font-body"
+                  href="/2026/tickets"
+                  className="text-sm text-[#9CA3AF] hover:text-[#F0F2F8] transition-colors"
+                  style={{ fontFamily: "var(--font-body)" }}
                 >
                   Tickets
                 </Link>
               </li>
               <li>
                 <Link
-                  to="/2026/become-a-sponsor"
-                  className="text-sm text-slate-400 hover:text-amber-400 transition-colors font-body"
+                  href="/2026/become-a-sponsor"
+                  className="text-sm text-[#9CA3AF] hover:text-[#F0F2F8] transition-colors"
+                  style={{ fontFamily: "var(--font-body)" }}
                 >
                   Become a Sponsor
                 </Link>
@@ -91,34 +87,37 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h4 className="font-display text-sm font-semibold text-white mb-4 uppercase tracking-wider">
-              Contact
+          {/* Social */}
+          <div className="md:col-span-2">
+            <h4 className="text-[11px] font-medium tracking-[0.1em] uppercase text-[#6B7280] mb-5" style={{ fontFamily: "var(--font-mono)" }}>
+              Connect
             </h4>
-            <ul className="space-y-2.5">
-              <li>
-                <a
-                  href="mailto:hello@msbc.my"
-                  className="text-sm text-slate-400 hover:text-amber-400 transition-colors font-body"
-                >
-                  hello@msbc.my
-                </a>
-              </li>
-              <li className="text-sm text-slate-400 font-body">
-                Kuala Lumpur, Malaysia
-              </li>
+            <ul className="space-y-3">
+              {siteSettings.socialLinks.map((link) => (
+                <li key={link.platform}>
+                  <a
+                    href={link.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-[#9CA3AF] hover:text-[#2563EB] transition-colors"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-6 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-slate-500 font-body">
+        {/* Bottom divider + copyright */}
+        <div className="horizon-glow mt-12 mb-6" />
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-[#4B5563]" style={{ fontFamily: "var(--font-mono)" }}>
             &copy; {new Date().getFullYear()} Malaysia Student Blockchain Conference. All rights reserved.
           </p>
-          <p className="text-xs text-slate-500 font-body">
-            Built with purpose for the Web3 community.
+          <p className="text-xs text-[#4B5563]" style={{ fontFamily: "var(--font-mono)" }}>
+            {eventEdition.startDate.replace(/-/g, ".")} &mdash; {eventEdition.endDate.replace(/-/g, ".")} &middot; {eventEdition.city}
           </p>
         </div>
       </div>

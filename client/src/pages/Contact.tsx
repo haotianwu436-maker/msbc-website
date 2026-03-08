@@ -1,19 +1,19 @@
 /**
- * MSBC Contact Page
- * Design: "Luminal Horizon" — Warm, professional, multi-channel contact
+ * MSBC Contact Page — "Stage Presence" Design
+ * Professional, multi-channel contact. Sharp edges, mono labels.
  */
 import { motion } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
 import SectionWrapper from "@/components/SectionWrapper";
 import SectionHeading from "@/components/SectionHeading";
 import { contactPageContent, contactMethods, siteSettings } from "@/lib/data";
-import { ArrowRight, Mail, Handshake, Newspaper, Users, HelpCircle } from "lucide-react";
+import { ArrowUpRight, Mail, Handshake, Newspaper, Users, HelpCircle } from "lucide-react";
 
 const typeIcons: Record<string, React.ReactNode> = {
-  sponsorship: <Handshake className="w-6 h-6" />,
-  media: <Newspaper className="w-6 h-6" />,
-  community: <Users className="w-6 h-6" />,
-  general: <HelpCircle className="w-6 h-6" />,
+  sponsorship: <Handshake className="w-5 h-5" />,
+  media: <Newspaper className="w-5 h-5" />,
+  community: <Users className="w-5 h-5" />,
+  general: <HelpCircle className="w-5 h-5" />,
 };
 
 export default function Contact() {
@@ -22,30 +22,40 @@ export default function Contact() {
   return (
     <PageLayout>
       {/* Hero */}
-      <section className="page-hero bg-gradient-to-b from-[#0A0F1C] to-background">
+      <section className="page-hero">
         <div className="container">
-          <SectionHeading title={c.heroHeadline} subtitle={c.heroSupportingCopy} />
+          <SectionHeading label="Contact" title={c.heroHeadline} subtitle={c.heroSupportingCopy} />
         </div>
       </section>
 
       {/* Contact Cards */}
       <SectionWrapper>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
           {contactMethods.map((method, i) => (
-            <motion.div key={method.contactId}
+            <motion.div
+              key={method.contactId}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="glass-card rounded-xl p-6 hover:border-amber-500/20 transition-all group">
-              <div className="w-12 h-12 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 mb-4 group-hover:bg-amber-500/20 transition-colors">
-                {typeIcons[method.contactType] || <Mail className="w-6 h-6" />}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: i * 0.08 }}
+              className="conference-card p-6 group"
+            >
+              <div className="w-10 h-10 border border-white/[0.06] flex items-center justify-center text-[#2563EB] mb-5 group-hover:border-[#2563EB]/30 transition-colors">
+                {typeIcons[method.contactType] || <Mail className="w-5 h-5" />}
               </div>
-              <h3 className="font-display text-lg font-semibold text-white mb-2">{method.label}</h3>
-              <p className="text-sm font-body text-slate-400 leading-relaxed mb-4">{method.description}</p>
-              <a href={`mailto:${method.email}`}
-                className="inline-flex items-center gap-2 text-sm font-display font-semibold text-amber-400 hover:text-amber-300 transition-colors">
-                {method.ctaLabel} <ArrowRight className="w-4 h-4" />
+              <h3 className="text-lg font-semibold text-[#F0F2F8] mb-2" style={{ fontFamily: "var(--font-display)" }}>
+                {method.label}
+              </h3>
+              <p className="text-sm text-[#6B7280] leading-relaxed mb-5" style={{ fontFamily: "var(--font-body)" }}>
+                {method.description}
+              </p>
+              <a
+                href={`mailto:${method.email}`}
+                className="inline-flex items-center gap-2 text-sm font-medium text-[#2563EB] hover:text-[#3B82F6] transition-colors"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {method.ctaLabel}
+                <ArrowUpRight className="w-3.5 h-3.5" />
               </a>
             </motion.div>
           ))}
@@ -53,14 +63,28 @@ export default function Contact() {
       </SectionWrapper>
 
       {/* Social Links */}
-      <SectionWrapper bgClassName="bg-[#0A0F1C]">
+      <SectionWrapper elevated>
         <div className="max-w-2xl mx-auto text-center">
-          <h3 className="font-display text-2xl font-bold text-white mb-3">{c.social.title}</h3>
-          <p className="text-sm font-body text-slate-400 mb-6">{c.social.bodyCopy}</p>
-          <div className="flex justify-center gap-4">
+          <span
+            className="inline-block text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-4"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
+            Follow Us
+          </span>
+          <h3 className="headline-sm text-[#F0F2F8]">{c.social.title}</h3>
+          <p className="text-sm text-[#6B7280] mt-4 mb-8" style={{ fontFamily: "var(--font-body)" }}>
+            {c.social.bodyCopy}
+          </p>
+          <div className="flex justify-center gap-3">
             {siteSettings.socialLinks.map((link) => (
-              <a key={link.platform} href={link.url} target="_blank" rel="noopener noreferrer"
-                className="w-12 h-12 flex items-center justify-center rounded-xl bg-white/5 hover:bg-amber-500/20 text-slate-400 hover:text-amber-400 transition-all font-body text-sm font-medium border border-white/5 hover:border-amber-500/30">
+              <a
+                key={link.platform}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 flex items-center justify-center border border-white/[0.06] text-[#6B7280] hover:text-[#2563EB] hover:border-[#2563EB]/30 transition-all text-sm font-medium"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
                 {link.platform === "twitter" && "X"}
                 {link.platform === "telegram" && "TG"}
                 {link.platform === "linkedin" && "LI"}
@@ -74,11 +98,13 @@ export default function Contact() {
       {/* Final CTA */}
       <SectionWrapper>
         <div className="max-w-2xl mx-auto text-center">
-          <h3 className="font-display text-2xl font-bold text-white mb-3">{c.finalCta.title}</h3>
-          <p className="text-sm font-body text-slate-400 mb-6">{c.finalCta.bodyCopy}</p>
-          <a href={c.finalCta.ctaUrl}
-            className="inline-flex items-center gap-2 px-7 py-3.5 font-display font-semibold text-base bg-amber-500 hover:bg-amber-400 text-[#0C1222] rounded-lg transition-all duration-200 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]">
-            {c.finalCta.ctaLabel} <ArrowRight className="w-4 h-4" />
+          <h3 className="headline-sm text-[#F0F2F8]">{c.finalCta.title}</h3>
+          <p className="text-sm text-[#6B7280] mt-4 mb-8" style={{ fontFamily: "var(--font-body)" }}>
+            {c.finalCta.bodyCopy}
+          </p>
+          <a href={c.finalCta.ctaUrl} className="btn-primary">
+            {c.finalCta.ctaLabel}
+            <ArrowUpRight className="w-4 h-4" />
           </a>
         </div>
       </SectionWrapper>

@@ -5,16 +5,16 @@
  * All content is structured and edition-based, ready to be replaced
  * with a real CMS (Sanity, Strapi, etc.) in the future.
  *
- * Design: "Luminal Horizon" — Midnight Navy + Amber Signal + Silver Mist
+ * Design: "Stage Presence" — Void Black + Electric Blue + Platinum White
  */
 
 // ─── Asset URLs ────────────────────────────────────────────────
 export const ASSETS = {
-  heroBg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-hero-bg-aDxoHADsmFXKshUKabzy89.webp",
-  hackathonBg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-hackathon-bg-fhGNQwW4vngyJgmeEtGv7Z.webp",
-  sponsorsBg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-sponsors-bg-M77MDy8NbjPvytM4nR5iDh.webp",
-  aboutVisual: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-about-visual-C8Z57Frq6yxCFHWkMZecoT.webp",
-  patternAbstract: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-pattern-abstract-KbsHyxQf89HPow5uKYpWNS.webp",
+  heroBg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-hero-v2-QTnD2kMnhYXpdyrofnZjVr.webp",
+  hackathonBg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-hackathon-v2-UcWKBe7XuEo5jBZcxdPYWA.webp",
+  sponsorsBg: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-sponsors-v2-6YwN7HuP5eDgCvJBQRS3pD.webp",
+  aboutVisual: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-about-v2-Ne9CZXSBwLU4M9PvbzZgxA.webp",
+  patternAbstract: "https://d2xsxph8kpxj0f.cloudfront.net/310519663282897218/48K9mgtVa6h5enFoNy8tHy/msbc-hackathon-v2-UcWKBe7XuEo5jBZcxdPYWA.webp",
 } as const;
 
 // ─── Site Settings ─────────────────────────────────────────────

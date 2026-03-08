@@ -1,7 +1,8 @@
 /**
- * MSBC Homepage
- * Design: "Luminal Horizon" — Cinematic dark theme, amber accents, atmospheric depth
- * Sections: Hero → About → Stats → Speakers → Agenda → Hackathon → Universities → Sponsors → FAQ → Contact → Final CTA
+ * MSBC Homepage — "Stage Presence" Design
+ * TOKEN2049-grade conference homepage.
+ * Void Black + Electric Blue + Platinum White. No amber. No rounded corners.
+ * Oversized headlines, editorial spacing, architectural precision.
  */
 import { Link } from "wouter";
 import { motion } from "framer-motion";
@@ -21,107 +22,98 @@ import {
 } from "@/lib/data";
 import {
   ArrowRight,
-  Calendar,
-  MapPin,
-  Users,
-  GraduationCap,
-  Mic2,
+  ArrowUpRight,
   Clock,
   ChevronDown,
-  Rocket,
-  Handshake,
-  MessageCircle,
+  ExternalLink,
 } from "lucide-react";
 import { useState } from "react";
+
+const fadeUp = {
+  initial: { opacity: 0, y: 20 } as const,
+  whileInView: { opacity: 1, y: 0 } as const,
+  viewport: { once: true, margin: "-50px" as const },
+  transition: { duration: 0.6, ease: "easeOut" as const },
+};
+
+const stagger = (i: number) => ({
+  ...fadeUp,
+  transition: { duration: 0.6, ease: "easeOut" as const, delay: i * 0.08 },
+});
 
 // ─── Hero Section ──────────────────────────────────────────────
 function HeroSection() {
   const { hero } = homepageContent;
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Background Image */}
+    <section className="relative min-h-screen flex items-end overflow-hidden">
+      {/* Background */}
       <div className="absolute inset-0">
-        <img
-          src={ASSETS.heroBg}
-          alt=""
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0C1222]/60 via-[#0C1222]/40 to-[#0C1222]" />
+        <img src={ASSETS.heroBg} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07090F] via-[#07090F]/70 to-[#07090F]/30" />
       </div>
 
-      {/* Ambient glow orbs */}
-      <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-amber-500/8 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/4 w-[300px] h-[300px] bg-amber-500/5 rounded-full blur-[100px] pointer-events-none" />
+      {/* Spotlight radial */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-[60%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.08)_0%,_transparent_70%)] pointer-events-none" />
 
-      <div className="container relative z-10 pt-28 pb-20 md:pt-32 md:pb-24">
-        <div className="max-w-4xl">
-          {/* Event Date Badge */}
+      <div className="container relative z-10 pb-20 md:pb-28 pt-32">
+        <div className="max-w-5xl">
+          {/* Date / Location — mono label */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6 }}
+            className="flex items-center gap-4 mb-8"
           >
-            <Calendar className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-body text-amber-300">
-              August 15–17, 2026
+            <span
+              className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB]"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              Aug 15–17, 2026
             </span>
-            <span className="text-amber-500/40">|</span>
-            <MapPin className="w-4 h-4 text-amber-400" />
-            <span className="text-sm font-body text-amber-300">
+            <span className="w-6 h-[1px] bg-white/20" />
+            <span
+              className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
               Kuala Lumpur, Malaysia
             </span>
           </motion.div>
 
-          {/* Title */}
+          {/* Oversized headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] tracking-tight"
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+            className="headline-xl"
           >
             Malaysia Student{" "}
-            <span className="text-amber-400">Blockchain</span>{" "}
+            <span className="text-[#2563EB]">Blockchain</span>{" "}
             Conference
           </motion.h1>
 
-          {/* Tagline */}
+          {/* Supporting copy */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.25 }}
-            className="mt-5 text-lg md:text-xl font-body text-slate-300 max-w-2xl leading-relaxed"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="mt-6 text-lg md:text-xl text-[#9CA3AF] max-w-2xl leading-relaxed"
+            style={{ fontFamily: "var(--font-body)" }}
           >
             {hero.headline}
-          </motion.p>
-
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.35 }}
-            className="mt-3 text-base font-body text-slate-400 max-w-2xl leading-relaxed"
-          >
-            {hero.supportingCopy}
           </motion.p>
 
           {/* CTAs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.45 }}
-            className="mt-8 flex flex-wrap gap-4"
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="mt-10 flex flex-wrap gap-4"
           >
-            <Link
-              to={hero.primaryCta.url}
-              className="inline-flex items-center gap-2 px-7 py-3.5 font-display font-semibold text-base bg-amber-500 hover:bg-amber-400 text-[#0C1222] rounded-lg transition-all duration-200 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]"
-            >
+            <Link href={hero.primaryCta.url} className="btn-primary">
               {hero.primaryCta.label}
-              <ArrowRight className="w-4 h-4" />
+              <ArrowUpRight className="w-4 h-4" />
             </Link>
-            <Link
-              to={hero.secondaryCta.url}
-              className="inline-flex items-center gap-2 px-7 py-3.5 font-display font-semibold text-base border border-white/20 hover:border-amber-500/50 text-white hover:text-amber-400 rounded-lg transition-all duration-200 hover:bg-white/5"
-            >
+            <Link href={hero.secondaryCta.url} className="btn-secondary">
               {hero.secondaryCta.label}
             </Link>
           </motion.div>
@@ -130,29 +122,36 @@ function HeroSection() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.55 }}
-            className="mt-12"
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="mt-14"
           >
             <Countdown />
           </motion.div>
         </div>
       </div>
+    </section>
+  );
+}
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-      >
-        <span className="text-xs font-body text-slate-500 uppercase tracking-widest">Scroll</span>
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-        >
-          <ChevronDown className="w-5 h-5 text-slate-500" />
-        </motion.div>
-      </motion.div>
+// ─── Stats Bar ────────────────────────────────────────────────
+function StatsBar() {
+  return (
+    <section className="border-y border-white/[0.06]">
+      <div className="container py-14 md:py-16">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+          {homepageContent.stats.map((stat, i) => (
+            <motion.div key={stat.label} {...stagger(i)} className="text-center">
+              <div className="stat-number">{stat.value}</div>
+              <div
+                className="text-[11px] tracking-[0.1em] uppercase text-[#6B7280] mt-2"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {stat.label}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
@@ -161,105 +160,86 @@ function HeroSection() {
 function AboutSection() {
   const { about } = homepageContent;
   return (
-    <SectionWrapper id="about">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <SectionWrapper id="about" spotlight>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         <div>
-          <SectionHeading title={about.sectionTitle} align="left" />
-          <p className="text-base md:text-lg font-body text-slate-300 leading-relaxed">
+          <SectionHeading label="About MSBC" title={about.sectionTitle} align="left" />
+          <p
+            className="text-base md:text-lg text-[#9CA3AF] leading-[1.8]"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
             {about.bodyCopy}
           </p>
-          <p className="mt-4 text-sm font-body text-amber-400/80 italic">
+          <p
+            className="mt-4 text-sm text-[#2563EB]"
+            style={{ fontFamily: "var(--font-mono)" }}
+          >
             Built in Kuala Lumpur. Connected across Asia.
           </p>
         </div>
         <div className="relative">
-          <div className="rounded-xl overflow-hidden">
-            <img
-              src={ASSETS.aboutVisual}
-              alt="Kuala Lumpur skyline at dusk"
-              className="w-full h-auto object-cover rounded-xl"
-            />
-          </div>
-          {/* Decorative glow */}
-          <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-amber-500/10 rounded-full blur-[60px] pointer-events-none" />
+          <img
+            src={ASSETS.aboutVisual}
+            alt="MSBC Network"
+            className="w-full h-auto"
+          />
         </div>
       </div>
     </SectionWrapper>
   );
 }
 
-// ─── Stats Section ─────────────────────────────────────────────
-function StatsSection() {
-  return (
-    <section className="relative">
-      <div className="section-divider" />
-      <div className="container py-12 md:py-16">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-          {homepageContent.stats.map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="text-center"
-            >
-              <div className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-amber-400">
-                {stat.value}
-              </div>
-              <div className="mt-2 text-sm font-body text-slate-400 uppercase tracking-wider">
-                {stat.label}
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
-      <div className="section-divider" />
-    </section>
-  );
-}
-
-// ─── Speakers Preview Section ──────────────────────────────────
+// ─── Speakers Preview ──────────────────────────────────────────
 function SpeakersPreview() {
   const { speakers: content } = homepageContent;
   const featured = speakers.filter((s) => s.featured).slice(0, 4);
   return (
-    <SectionWrapper>
-      <SectionHeading title={content.sectionTitle} subtitle={content.bodyCopy} />
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
+    <SectionWrapper elevated>
+      <SectionHeading
+        label="Speakers"
+        title={content.sectionTitle}
+        subtitle={content.bodyCopy}
+      />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
         {featured.map((speaker, i) => (
           <motion.div
             key={speaker.speakerId}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.1 }}
-            className="glass-card rounded-xl p-4 text-center group hover:border-amber-500/30 transition-all duration-300"
+            {...stagger(i)}
+            className="conference-card p-0 overflow-hidden group"
           >
-            <div className="w-20 h-20 md:w-24 md:h-24 mx-auto rounded-full overflow-hidden mb-4 ring-2 ring-white/10 group-hover:ring-amber-500/30 transition-all">
+            {/* Photo — square, sharp corners */}
+            <div className="aspect-square overflow-hidden bg-[#1F2937]">
               <img
                 src={speaker.photo}
                 alt={speaker.fullName}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
               />
             </div>
-            <h3 className="font-display text-sm md:text-base font-semibold text-white">
-              {speaker.fullName}
-            </h3>
-            <p className="text-xs md:text-sm font-body text-amber-400/80 mt-1">
-              {speaker.title}
-            </p>
-            <p className="text-xs font-body text-slate-400 mt-0.5">
-              {speaker.organisation}
-            </p>
+            <div className="p-5">
+              <h3
+                className="text-sm md:text-base font-semibold text-[#F0F2F8]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                {speaker.fullName}
+              </h3>
+              <p
+                className="text-xs md:text-sm text-[#2563EB] mt-1"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                {speaker.title}
+              </p>
+              <p
+                className="text-xs text-[#6B7280] mt-0.5"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
+                {speaker.organisation}
+              </p>
+            </div>
           </motion.div>
         ))}
       </div>
-      <div className="mt-10 text-center">
-        <Link
-          to={content.ctaUrl}
-          className="inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all"
-        >
+      <div className="mt-14 text-center">
+        <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
         </Link>
@@ -268,65 +248,69 @@ function SpeakersPreview() {
   );
 }
 
-// ─── Agenda Preview Section ────────────────────────────────────
+// ─── Agenda Preview ────────────────────────────────────────────
 function AgendaPreview() {
   const { agenda: content } = homepageContent;
-  const featured = agendaSessions.filter((s) => s.featured).slice(0, 3);
-
-  const formatBadge = (format: string) => {
-    const map: Record<string, string> = {
-      keynote: "Keynote",
-      panel: "Panel",
-      workshop: "Workshop",
-      fireside_chat: "Fireside Chat",
-      hackathon_session: "Hackathon",
-    };
-    return map[format] || format;
-  };
+  const featured = agendaSessions.filter((s) => s.featured).slice(0, 4);
 
   return (
-    <SectionWrapper bgClassName="bg-[#0A0F1C]">
-      <SectionHeading title={content.sectionTitle} subtitle={content.bodyCopy} />
-      <div className="space-y-4">
+    <SectionWrapper>
+      <SectionHeading
+        label="Programme"
+        title={content.sectionTitle}
+        subtitle={content.bodyCopy}
+      />
+      <div className="space-y-3">
         {featured.map((session, i) => (
           <motion.div
             key={session.sessionId}
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: i * 0.1 }}
-            className="glass-card rounded-xl p-5 md:p-6 flex flex-col md:flex-row md:items-center gap-4 hover:border-amber-500/20 transition-all"
+            {...stagger(i)}
+            className="conference-card flex flex-col md:flex-row md:items-center gap-4 p-5 md:p-6"
           >
-            <div className="flex items-center gap-3 md:w-40 shrink-0">
-              <Clock className="w-4 h-4 text-amber-400" />
-              <span className="font-body text-sm text-slate-300">
+            {/* Time */}
+            <div className="flex items-center gap-2 md:w-44 shrink-0">
+              <Clock className="w-3.5 h-3.5 text-[#2563EB]" />
+              <span
+                className="text-sm text-[#9CA3AF]"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
                 {session.startTime} – {session.endTime}
               </span>
             </div>
+            {/* Content */}
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-body font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/20">
-                  {formatBadge(session.format)}
+              <div className="flex items-center gap-3 mb-1.5">
+                <span
+                  className="text-[10px] font-medium tracking-[0.08em] uppercase px-2.5 py-1 border border-[#2563EB]/20 text-[#2563EB]"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
+                  {session.format.replace("_", " ")}
                 </span>
-                <span className="text-[10px] font-body text-slate-500 uppercase tracking-wider">
+                <span
+                  className="text-[10px] tracking-[0.08em] uppercase text-[#6B7280]"
+                  style={{ fontFamily: "var(--font-mono)" }}
+                >
                   {session.track}
                 </span>
               </div>
-              <h3 className="font-display text-base md:text-lg font-semibold text-white">
+              <h3
+                className="text-base md:text-lg font-semibold text-[#F0F2F8]"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
                 {session.title}
               </h3>
-              <p className="text-sm font-body text-slate-400 mt-1 line-clamp-2">
+              <p
+                className="text-sm text-[#6B7280] mt-1 line-clamp-1"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
                 {session.shortDescription}
               </p>
             </div>
           </motion.div>
         ))}
       </div>
-      <div className="mt-10 text-center">
-        <Link
-          to={content.ctaUrl}
-          className="inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all"
-        >
+      <div className="mt-14 text-center">
+        <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
         </Link>
@@ -335,41 +319,40 @@ function AgendaPreview() {
   );
 }
 
-// ─── Hackathon Preview Section ─────────────────────────────────
+// ─── Hackathon Preview ─────────────────────────────────────────
 function HackathonPreview() {
   const { hackathon: content } = homepageContent;
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0">
-        <img src={ASSETS.hackathonBg} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-[#0C1222]/80" />
+        <img src={ASSETS.hackathonBg} alt="" className="w-full h-full object-cover opacity-40" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#07090F] via-[#07090F]/80 to-[#07090F]/60" />
       </div>
+      {/* Spotlight */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[50%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.1)_0%,_transparent_70%)] pointer-events-none" />
+
       <div className="container section-padding relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10 mb-6">
-              <Rocket className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-body text-amber-300">Hackathon</span>
-            </div>
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+          <motion.div {...fadeUp}>
+            <span
+              className="inline-block text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-6"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              Hackathon
+            </span>
+            <h2 className="headline-lg text-[#F0F2F8]">
               {content.sectionTitle}
             </h2>
-            <div className="h-[2px] w-16 bg-amber-500 mt-4 mb-5 mx-auto" />
-            <p className="text-base md:text-lg font-body text-slate-300 leading-relaxed max-w-2xl mx-auto">
+            <p
+              className="mt-6 text-base md:text-lg text-[#9CA3AF] leading-relaxed max-w-2xl mx-auto"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               {content.bodyCopy}
             </p>
-            <div className="mt-8">
-              <Link
-                to={content.ctaUrl}
-                className="inline-flex items-center gap-2 px-7 py-3.5 font-display font-semibold text-base bg-amber-500 hover:bg-amber-400 text-[#0C1222] rounded-lg transition-all duration-200 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]"
-              >
+            <div className="mt-10">
+              <Link href={content.ctaUrl} className="btn-primary">
                 {content.ctaLabel}
-                <ArrowRight className="w-4 h-4" />
+                <ArrowUpRight className="w-4 h-4" />
               </Link>
             </div>
           </motion.div>
@@ -379,36 +362,40 @@ function HackathonPreview() {
   );
 }
 
-// ─── Universities Preview Section ──────────────────────────────
+// ─── Universities Preview ──────────────────────────────────────
 function UniversitiesPreview() {
   const { universities: content } = homepageContent;
   return (
     <SectionWrapper>
-      <SectionHeading title={content.sectionTitle} subtitle={content.bodyCopy} />
-      <div className="flex flex-wrap justify-center gap-6 md:gap-8">
+      <SectionHeading
+        label="Participating Universities"
+        title={content.sectionTitle}
+        subtitle={content.bodyCopy}
+      />
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4 md:gap-6">
         {universities.slice(0, 6).map((uni, i) => (
           <motion.div
             key={uni.universityId}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
-            className="glass-card rounded-xl p-4 w-36 md:w-40 text-center hover:border-amber-500/20 transition-all"
+            {...stagger(i)}
+            className="conference-card p-5 md:p-6 text-center"
           >
-            <div className="w-14 h-14 mx-auto rounded-lg overflow-hidden bg-white/5 flex items-center justify-center mb-3">
-              <GraduationCap className="w-7 h-7 text-amber-400/70" />
+            <div
+              className="text-2xl md:text-3xl font-bold text-[#2563EB]/30 mb-3"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              {uni.universityName.split(" ").map(w => w[0]).join("").slice(0, 3)}
             </div>
-            <p className="font-body text-xs md:text-sm text-slate-300 leading-tight">
+            <p
+              className="text-[11px] md:text-xs text-[#9CA3AF] leading-tight"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               {uni.universityName}
             </p>
           </motion.div>
         ))}
       </div>
-      <div className="mt-10 text-center">
-        <Link
-          to={content.ctaUrl}
-          className="inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all"
-        >
+      <div className="mt-14 text-center">
+        <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
         </Link>
@@ -417,66 +404,85 @@ function UniversitiesPreview() {
   );
 }
 
-// ─── Sponsors Preview Section ──────────────────────────────────
+// ─── Sponsors Preview ──────────────────────────────────────────
 function SponsorsPreview() {
   const { sponsors: content } = homepageContent;
   const tierOrder = ["title", "platinum", "gold", "silver"];
-  const displaySponsors = sponsors.filter((s) => tierOrder.includes(s.tier));
+  const tierLabels: Record<string, string> = {
+    title: "Title Sponsor",
+    platinum: "Platinum",
+    gold: "Gold",
+    silver: "Silver",
+  };
+  const grouped = tierOrder
+    .map((tier) => ({
+      tier,
+      label: tierLabels[tier],
+      items: sponsors.filter((s) => s.tier === tier),
+    }))
+    .filter((g) => g.items.length > 0);
 
   return (
-    <SectionWrapper bgClassName="bg-[#0A0F1C]">
-      <SectionHeading title={content.sectionTitle} subtitle={content.bodyCopy} />
-      <div className="flex flex-wrap justify-center gap-8 md:gap-12">
-        {displaySponsors.map((sponsor, i) => (
-          <motion.a
-            key={sponsor.sponsorId}
-            href={sponsor.websiteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.3, delay: i * 0.05 }}
-            className="flex flex-col items-center gap-2 group"
-          >
-            <div
-              className={`rounded-xl overflow-hidden bg-white/5 flex items-center justify-center border border-white/5 group-hover:border-amber-500/30 transition-all ${
-                sponsor.tier === "title"
-                  ? "w-24 h-24 md:w-28 md:h-28"
-                  : sponsor.tier === "platinum"
-                  ? "w-20 h-20 md:w-24 md:h-24"
-                  : "w-16 h-16 md:w-20 md:h-20"
-              }`}
-            >
-              <Handshake className="w-8 h-8 text-slate-500 group-hover:text-amber-400 transition-colors" />
+    <SectionWrapper elevated>
+      <SectionHeading
+        label="Partners & Sponsors"
+        title={content.sectionTitle}
+        subtitle={content.bodyCopy}
+      />
+      <div className="space-y-12">
+        {grouped.map((group) => (
+          <div key={group.tier}>
+            <div className="text-center mb-6">
+              <span
+                className="text-[10px] font-medium tracking-[0.12em] uppercase text-[#6B7280]"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {group.label}
+              </span>
             </div>
-            <span className="text-xs font-body text-slate-400 group-hover:text-amber-400 transition-colors">
-              {sponsor.companyName}
-            </span>
-          </motion.a>
+            <div className="flex flex-wrap justify-center gap-6 md:gap-10">
+              {group.items.map((sponsor, i) => (
+                <motion.a
+                  key={sponsor.sponsorId}
+                  href={sponsor.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  {...stagger(i)}
+                  className={`conference-card flex items-center justify-center group ${
+                    group.tier === "title"
+                      ? "w-32 h-32 md:w-40 md:h-40"
+                      : group.tier === "platinum"
+                      ? "w-28 h-28 md:w-32 md:h-32"
+                      : "w-20 h-20 md:w-24 md:h-24"
+                  }`}
+                >
+                  <span
+                    className="text-xs md:text-sm text-[#6B7280] group-hover:text-[#F0F2F8] transition-colors text-center px-2"
+                    style={{ fontFamily: "var(--font-display)" }}
+                  >
+                    {sponsor.companyName}
+                  </span>
+                </motion.a>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
-      <div className="mt-10 flex flex-wrap justify-center gap-4">
-        <Link
-          to={content.cta1Url}
-          className="inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all"
-        >
+      <div className="mt-16 flex flex-wrap justify-center gap-4">
+        <Link href={content.cta1Url} className="btn-secondary">
           {content.cta1Label}
           <ArrowRight className="w-4 h-4" />
         </Link>
-        <Link
-          to={content.cta2Url}
-          className="inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm bg-amber-500 hover:bg-amber-400 text-[#0C1222] rounded-lg transition-all"
-        >
+        <Link href={content.cta2Url} className="btn-primary">
           {content.cta2Label}
-          <ArrowRight className="w-4 h-4" />
+          <ArrowUpRight className="w-4 h-4" />
         </Link>
       </div>
     </SectionWrapper>
   );
 }
 
-// ─── FAQ Preview Section ───────────────────────────────────────
+// ─── FAQ Preview ───────────────────────────────────────────────
 function FaqPreview() {
   const { faq: content } = homepageContent;
   const previewFaqs = faqItems.filter((f) => f.category === "general").slice(0, 4);
@@ -484,23 +490,27 @@ function FaqPreview() {
 
   return (
     <SectionWrapper>
-      <SectionHeading title={content.sectionTitle} subtitle={content.bodyCopy} />
-      <div className="max-w-3xl mx-auto space-y-3">
+      <SectionHeading
+        label="FAQ"
+        title={content.sectionTitle}
+        subtitle={content.bodyCopy}
+      />
+      <div className="max-w-3xl mx-auto space-y-2">
         {previewFaqs.map((faq) => (
-          <div
-            key={faq.faqId}
-            className="glass-card rounded-xl overflow-hidden"
-          >
+          <div key={faq.faqId} className="border-b border-white/[0.06]">
             <button
               onClick={() => setOpenId(openId === faq.faqId ? null : faq.faqId)}
-              className="w-full flex items-center justify-between p-5 text-left"
+              className="w-full flex items-center justify-between py-5 text-left group"
             >
-              <span className="font-display text-sm md:text-base font-medium text-white pr-4">
+              <span
+                className="text-sm md:text-base font-medium text-[#F0F2F8] pr-4 group-hover:text-[#2563EB] transition-colors"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
                 {faq.question}
               </span>
               <ChevronDown
-                className={`w-5 h-5 text-amber-400 shrink-0 transition-transform duration-200 ${
-                  openId === faq.faqId ? "rotate-180" : ""
+                className={`w-4 h-4 text-[#6B7280] shrink-0 transition-transform duration-200 ${
+                  openId === faq.faqId ? "rotate-180 text-[#2563EB]" : ""
                 }`}
               />
             </button>
@@ -508,10 +518,12 @@ function FaqPreview() {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                className="px-5 pb-5"
+                className="pb-5"
               >
-                <p className="text-sm font-body text-slate-400 leading-relaxed">
+                <p
+                  className="text-sm text-[#9CA3AF] leading-relaxed"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
                   {faq.answer}
                 </p>
               </motion.div>
@@ -519,32 +531,10 @@ function FaqPreview() {
           </div>
         ))}
       </div>
-      <div className="mt-10 text-center">
-        <Link
-          to={content.ctaUrl}
-          className="inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm border border-amber-500/30 text-amber-400 hover:bg-amber-500/10 rounded-lg transition-all"
-        >
+      <div className="mt-14 text-center">
+        <Link href={content.ctaUrl} className="btn-secondary">
           {content.ctaLabel}
           <ArrowRight className="w-4 h-4" />
-        </Link>
-      </div>
-    </SectionWrapper>
-  );
-}
-
-// ─── Contact Preview Section ───────────────────────────────────
-function ContactPreview() {
-  const { contact: content } = homepageContent;
-  return (
-    <SectionWrapper bgClassName="bg-[#0A0F1C]">
-      <div className="max-w-3xl mx-auto text-center">
-        <SectionHeading title={content.sectionTitle} subtitle={content.bodyCopy} />
-        <Link
-          to={content.ctaUrl}
-          className="inline-flex items-center gap-2 px-7 py-3.5 font-display font-semibold text-base bg-amber-500 hover:bg-amber-400 text-[#0C1222] rounded-lg transition-all duration-200 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]"
-        >
-          <MessageCircle className="w-4 h-4" />
-          {content.ctaLabel}
         </Link>
       </div>
     </SectionWrapper>
@@ -555,34 +545,33 @@ function ContactPreview() {
 function FinalCtaSection() {
   return (
     <section className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-[#0C1222] to-amber-500/10" />
+      {/* Spotlight */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[80%] bg-[radial-gradient(ellipse_at_center,_rgba(37,99,235,0.06)_0%,_transparent_70%)] pointer-events-none" />
+      <div className="horizon-glow" />
       <div className="container section-padding relative z-10">
         <div className="max-w-3xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-white tracking-tight">
+          <motion.div {...fadeUp}>
+            <span
+              className="inline-block text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-6"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              Join Us
+            </span>
+            <h2 className="headline-lg text-[#F0F2F8]">
               Be Part of What's Next
             </h2>
-            <div className="h-[2px] w-16 bg-amber-500 mt-4 mb-5 mx-auto" />
-            <p className="text-base md:text-lg font-body text-slate-300 leading-relaxed max-w-2xl mx-auto">
+            <p
+              className="mt-6 text-base md:text-lg text-[#9CA3AF] leading-relaxed max-w-2xl mx-auto"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               Join 700+ students, builders, and ecosystem leaders in Kuala Lumpur for three days of talks, workshops, hackathon experiences, and meaningful connections.
             </p>
-            <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <Link
-                to="/2026/tickets"
-                className="inline-flex items-center gap-2 px-7 py-3.5 font-display font-semibold text-base bg-amber-500 hover:bg-amber-400 text-[#0C1222] rounded-lg transition-all duration-200 hover:shadow-[0_0_30px_rgba(245,158,11,0.3)]"
-              >
+            <div className="mt-10 flex flex-wrap justify-center gap-4">
+              <Link href="/2026/tickets" className="btn-primary">
                 Register Now
-                <ArrowRight className="w-4 h-4" />
+                <ArrowUpRight className="w-4 h-4" />
               </Link>
-              <Link
-                to="/2026/become-a-sponsor"
-                className="inline-flex items-center gap-2 px-7 py-3.5 font-display font-semibold text-base border border-white/20 hover:border-amber-500/50 text-white hover:text-amber-400 rounded-lg transition-all duration-200 hover:bg-white/5"
-              >
+              <Link href="/2026/become-a-sponsor" className="btn-secondary">
                 Become a Sponsor
               </Link>
             </div>
@@ -598,15 +587,14 @@ export default function Home() {
   return (
     <PageLayout>
       <HeroSection />
+      <StatsBar />
       <AboutSection />
-      <StatsSection />
       <SpeakersPreview />
       <AgendaPreview />
       <HackathonPreview />
       <UniversitiesPreview />
       <SponsorsPreview />
       <FaqPreview />
-      <ContactPreview />
       <FinalCtaSection />
     </PageLayout>
   );

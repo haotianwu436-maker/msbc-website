@@ -1,8 +1,7 @@
 /**
- * MSBC Section Wrapper
- * Provides consistent section padding, optional background, and entrance animations.
+ * MSBC SectionWrapper — "Stage Presence" Design
+ * Clean dark sections with optional spotlight radial and elevated surface.
  */
-import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
 interface SectionWrapperProps {
@@ -11,6 +10,8 @@ interface SectionWrapperProps {
   className?: string;
   bgClassName?: string;
   noPadding?: boolean;
+  elevated?: boolean;
+  spotlight?: boolean;
 }
 
 export default function SectionWrapper({
@@ -19,18 +20,19 @@ export default function SectionWrapper({
   className = "",
   bgClassName = "",
   noPadding = false,
+  elevated = false,
+  spotlight = false,
 }: SectionWrapperProps) {
   return (
-    <section id={id} className={`relative ${bgClassName}`}>
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-80px" }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`container ${noPadding ? "" : "section-padding"} ${className}`}
-      >
+    <section
+      id={id}
+      className={`relative ${elevated ? "bg-[#111827]" : ""} ${spotlight ? "spotlight" : ""} ${bgClassName}`}
+    >
+      {/* Horizon glow divider at top */}
+      <div className="horizon-glow" />
+      <div className={`container relative z-10 ${noPadding ? "" : "section-padding"} ${className}`}>
         {children}
-      </motion.div>
+      </div>
     </section>
   );
 }

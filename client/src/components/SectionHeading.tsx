@@ -1,10 +1,12 @@
 /**
- * MSBC Section Heading
- * Consistent heading style with optional subtitle and animated divider.
+ * MSBC SectionHeading — "Stage Presence" Design
+ * Oversized headline with mono label and optional subtitle.
+ * No decorative dividers — typography IS the design.
  */
 import { motion } from "framer-motion";
 
 interface SectionHeadingProps {
+  label?: string;
   title: string;
   subtitle?: string;
   align?: "left" | "center";
@@ -12,47 +14,43 @@ interface SectionHeadingProps {
 }
 
 export default function SectionHeading({
+  label,
   title,
   subtitle,
   align = "center",
   light = false,
 }: SectionHeadingProps) {
+  const alignClass = align === "center" ? "text-center mx-auto" : "text-left";
+
   return (
-    <div className={`mb-8 md:mb-12 ${align === "center" ? "text-center" : "text-left"}`}>
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.5 }}
-        className={`font-display text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight ${
-          light ? "text-white" : "text-white"
-        }`}
-      >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className={`max-w-3xl mb-14 md:mb-20 ${alignClass}`}
+    >
+      {label && (
+        <span
+          className="inline-block text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-4"
+          style={{ fontFamily: "var(--font-mono)" }}
+        >
+          {label}
+        </span>
+      )}
+      <h2 className="headline-lg text-[#F0F2F8]">
         {title}
-      </motion.h2>
-      {/* Animated divider */}
-      <motion.div
-        initial={{ scaleX: 0 }}
-        whileInView={{ scaleX: 1 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-        className={`h-[2px] w-16 bg-amber-500 mt-4 mb-5 origin-left ${
-          align === "center" ? "mx-auto" : ""
-        }`}
-      />
+      </h2>
       {subtitle && (
-        <motion.p
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className={`text-base md:text-lg font-body leading-relaxed max-w-2xl ${
-            align === "center" ? "mx-auto" : ""
-          } ${light ? "text-slate-300" : "text-slate-400"}`}
+        <p
+          className={`mt-5 text-base md:text-lg leading-relaxed ${
+            align === "center" ? "mx-auto max-w-2xl" : ""
+          } text-[#6B7280]`}
+          style={{ fontFamily: "var(--font-body)" }}
         >
           {subtitle}
-        </motion.p>
+        </p>
       )}
-    </div>
+    </motion.div>
   );
 }

@@ -1,3 +1,7 @@
+/**
+ * MSBC App — "Stage Presence" Design
+ * Dark theme conference website with year-based routing.
+ */
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
@@ -18,12 +22,9 @@ import Contact from "./pages/Contact";
 function Router() {
   return (
     <Switch>
-      {/* Root redirects to current edition */}
       <Route path="/">
         <Redirect to="/2026" />
       </Route>
-
-      {/* 2026 Edition Routes */}
       <Route path="/2026" component={Home} />
       <Route path="/2026/speakers" component={Speakers} />
       <Route path="/2026/agenda" component={Agenda} />
@@ -34,8 +35,6 @@ function Router() {
       <Route path="/2026/universities" component={Universities} />
       <Route path="/2026/faq" component={Faq} />
       <Route path="/2026/contact" component={Contact} />
-
-      {/* Fallback */}
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />
     </Switch>

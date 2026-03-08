@@ -1,6 +1,6 @@
 /**
- * MSBC Countdown Timer
- * Counts down to the event start date with flip-style animation.
+ * MSBC Countdown — "Stage Presence" Design
+ * Mono-spaced countdown with architectural precision. No glass cards.
  */
 import { useState, useEffect } from "react";
 import { eventEdition } from "@/lib/data";
@@ -14,19 +14,15 @@ function getTimeRemaining(target: string): TimeUnit[] {
   const diff = new Date(target).getTime() - Date.now();
   if (diff <= 0) return [
     { value: 0, label: "Days" },
-    { value: 0, label: "Hours" },
-    { value: 0, label: "Minutes" },
-    { value: 0, label: "Seconds" },
+    { value: 0, label: "Hrs" },
+    { value: 0, label: "Min" },
+    { value: 0, label: "Sec" },
   ];
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-  const minutes = Math.floor((diff / (1000 * 60)) % 60);
-  const seconds = Math.floor((diff / 1000) % 60);
   return [
-    { value: days, label: "Days" },
-    { value: hours, label: "Hours" },
-    { value: minutes, label: "Minutes" },
-    { value: seconds, label: "Seconds" },
+    { value: Math.floor(diff / 86400000), label: "Days" },
+    { value: Math.floor((diff % 86400000) / 3600000), label: "Hrs" },
+    { value: Math.floor((diff % 3600000) / 60000), label: "Min" },
+    { value: Math.floor((diff % 60000) / 1000), label: "Sec" },
   ];
 }
 
@@ -43,17 +39,31 @@ export default function Countdown() {
   }, []);
 
   return (
-    <div className="flex gap-3 sm:gap-4">
-      {units.map((unit) => (
-        <div key={unit.label} className="flex flex-col items-center">
-          <div className="glass-card rounded-lg px-3 py-2 sm:px-4 sm:py-3 min-w-[60px] sm:min-w-[72px] text-center">
-            <span className="font-display text-2xl sm:text-3xl md:text-4xl font-bold text-amber-400 tabular-nums">
+    <div className="flex items-center gap-3 md:gap-5">
+      {units.map((unit, i) => (
+        <div key={unit.label} className="flex items-center gap-3 md:gap-5">
+          <div className="text-center">
+            <div
+              className="text-3xl md:text-5xl font-medium text-[#F0F2F8] tabular-nums"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
               {String(unit.value).padStart(2, "0")}
-            </span>
+            </div>
+            <div
+              className="text-[10px] md:text-[11px] tracking-[0.1em] uppercase text-[#6B7280] mt-1.5"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              {unit.label}
+            </div>
           </div>
-          <span className="mt-1.5 text-[10px] sm:text-xs font-body text-slate-400 uppercase tracking-wider">
-            {unit.label}
-          </span>
+          {i < units.length - 1 && (
+            <span
+              className="text-2xl md:text-4xl text-[#2563EB]/40 font-light select-none"
+              style={{ fontFamily: "var(--font-mono)" }}
+            >
+              :
+            </span>
+          )}
         </div>
       ))}
     </div>

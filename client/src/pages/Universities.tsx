@@ -1,13 +1,14 @@
 /**
- * MSBC Participating Universities Page
- * Design: "Luminal Horizon" — Categorized university display
+ * MSBC Participating Universities Page — "Stage Presence" Design
+ * Categorized university display. Mono labels, sharp edges.
  */
 import { motion } from "framer-motion";
+import { Link } from "wouter";
 import PageLayout from "@/components/PageLayout";
 import SectionWrapper from "@/components/SectionWrapper";
 import SectionHeading from "@/components/SectionHeading";
 import { universities, homepageContent } from "@/lib/data";
-import { GraduationCap, MapPin } from "lucide-react";
+import { MapPin, ArrowUpRight } from "lucide-react";
 
 const categoryConfig: Record<string, { label: string; description: string; order: number }> = {
   organising: { label: "Organising Universities", description: "The universities leading and shaping the MSBC experience.", order: 1 },
@@ -23,9 +24,9 @@ export default function Universities() {
   return (
     <PageLayout>
       {/* Hero */}
-      <section className="page-hero bg-gradient-to-b from-[#0A0F1C] to-background">
+      <section className="page-hero">
         <div className="container">
-          <SectionHeading title="Participating Universities" subtitle={homepageContent.universities.bodyCopy} />
+          <SectionHeading label="Universities" title="Participating Universities" subtitle={homepageContent.universities.bodyCopy} />
         </div>
       </section>
 
@@ -34,21 +35,44 @@ export default function Universities() {
         const config = categoryConfig[cat] || { label: cat, description: "", order: 99 };
         const unis = universities.filter((u) => u.category === cat);
         return (
-          <SectionWrapper key={cat} bgClassName={ci % 2 === 1 ? "bg-[#0A0F1C]" : ""}>
-            <h3 className="font-display text-lg font-semibold text-amber-400 mb-2 uppercase tracking-wider">{config.label}</h3>
-            <p className="text-sm font-body text-slate-400 mb-8">{config.description}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <SectionWrapper key={cat} elevated={ci % 2 === 1}>
+            <div className="mb-10">
+              <span
+                className="text-[11px] font-medium tracking-[0.12em] uppercase text-[#2563EB] mb-2 inline-block"
+                style={{ fontFamily: "var(--font-mono)" }}
+              >
+                {config.label}
+              </span>
+              <p className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-body)" }}>
+                {config.description}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {unis.map((uni, i) => (
-                <motion.a key={uni.universityId} href={uni.websiteUrl} target="_blank" rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }} transition={{ duration: 0.3, delay: i * 0.05 }}
-                  className="glass-card rounded-xl p-5 flex items-center gap-4 group hover:border-amber-500/20 transition-all">
-                  <div className="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center shrink-0 group-hover:bg-amber-500/10 transition-colors">
-                    <GraduationCap className="w-7 h-7 text-amber-400/70 group-hover:text-amber-400 transition-colors" />
+                <motion.a
+                  key={uni.universityId}
+                  href={uni.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-50px" }}
+                  transition={{ duration: 0.4, delay: i * 0.04 }}
+                  className="conference-card p-5 flex items-center gap-4 group"
+                >
+                  <div className="w-12 h-12 border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:border-[#2563EB]/30 transition-colors">
+                    <span
+                      className="text-sm font-bold text-[#2563EB]/40 group-hover:text-[#2563EB] transition-colors"
+                      style={{ fontFamily: "var(--font-display)" }}
+                    >
+                      {uni.universityName.split(" ").map(w => w[0]).join("").slice(0, 2)}
+                    </span>
                   </div>
                   <div>
-                    <h4 className="font-display text-sm font-semibold text-white group-hover:text-amber-400 transition-colors">{uni.universityName}</h4>
-                    <div className="flex items-center gap-1 mt-1 text-xs font-body text-slate-500">
+                    <h4 className="text-sm font-semibold text-[#F0F2F8] group-hover:text-[#2563EB] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
+                      {uni.universityName}
+                    </h4>
+                    <div className="flex items-center gap-1 mt-1 text-xs text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
                       <MapPin className="w-3 h-3" /> {uni.city}
                     </div>
                   </div>
@@ -62,14 +86,14 @@ export default function Universities() {
       {/* CTA */}
       <SectionWrapper>
         <div className="max-w-2xl mx-auto text-center">
-          <h3 className="font-display text-2xl font-bold text-white mb-3">Want Your University Involved?</h3>
-          <p className="text-sm font-body text-slate-400 mb-6">
+          <h3 className="headline-sm text-[#F0F2F8]">Want Your University Involved?</h3>
+          <p className="text-sm text-[#6B7280] mt-4 mb-8" style={{ fontFamily: "var(--font-body)" }}>
             Universities, student societies, and campus communities interested in participating or collaborating can reach out through our contact page.
           </p>
-          <a href="/2026/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 font-display font-semibold text-sm bg-amber-500 hover:bg-amber-400 text-[#0C1222] rounded-lg transition-all">
+          <Link href="/2026/contact" className="btn-primary">
             Get in Touch
-          </a>
+            <ArrowUpRight className="w-4 h-4" />
+          </Link>
         </div>
       </SectionWrapper>
     </PageLayout>
