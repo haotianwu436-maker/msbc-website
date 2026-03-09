@@ -204,21 +204,22 @@ VALUES
   ('images', 'images', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']),
   ('posters', 'posters', true, 10485760, ARRAY['image/jpeg', 'image/png', 'image/webp']),
   ('speaker-photos', 'speaker-photos', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp']),
-  ('sponsor-logos', 'sponsor-logos', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'])
+  ('sponsor-logos', 'sponsor-logos', true, 5242880, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml']),
+  ('logos', 'logos', true, 2097152, ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/svg+xml'])
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage Policies: Allow public read access
 CREATE POLICY "Allow public read access" ON storage.objects
-  FOR SELECT USING (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos'));
+  FOR SELECT USING (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos', 'logos'));
 
 -- Storage Policies: Allow public upload access
 CREATE POLICY "Allow public upload access" ON storage.objects
-  FOR INSERT WITH CHECK (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos'));
+  FOR INSERT WITH CHECK (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos', 'logos'));
 
 -- Storage Policies: Allow public update access
 CREATE POLICY "Allow public update access" ON storage.objects
-  FOR UPDATE USING (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos'));
+  FOR UPDATE USING (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos', 'logos'));
 
 -- Storage Policies: Allow public delete access
 CREATE POLICY "Allow public delete access" ON storage.objects
-  FOR DELETE USING (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos'));
+  FOR DELETE USING (bucket_id IN ('images', 'posters', 'speaker-photos', 'sponsor-logos', 'logos'));

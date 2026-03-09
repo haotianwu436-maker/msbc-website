@@ -52,6 +52,7 @@ export const STORAGE_BUCKETS = {
   POSTERS: "posters",
   SPEAKER_PHOTOS: "speaker-photos",
   SPONSOR_LOGOS: "sponsor-logos",
+  LOGOS: "logos", // For university logos
 } as const;
 
 // ─── Image Upload Helper ──────────────────────────────────────────

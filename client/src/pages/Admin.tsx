@@ -760,8 +760,13 @@ function SponsorsPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   );
 }
 
-function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
+function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnType<typeof useSupabaseCms> }) {
   const [editing, setEditing] = useState<string | null>(null);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  
+  // Check if Supabase is configured
+  const isSupabase = "isConfigured" in cms && cms.isConfigured;
+  
   const addUni = () => {
     const n: University = { universityId: `uni-${Date.now()}`, universityName: "New University", logo: "", category: "participating", roleDescription: "", websiteUrl: "#", city: "Kuala Lumpur", displayOrder: cms.universities.length + 1 };
     cms.setUniversities([...cms.universities, n]);
@@ -771,13 +776,57 @@ function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   const del = (id: string) => { cms.setUniversities(cms.universities.filter((u) => u.universityId !== id)); if (editing === id) setEditing(null); };
   const editingItem = cms.universities.find((u) => u.universityId === editing);
 
+  const handleLogoUpload = async (url: string) => {
+    if (editingItem) {
+      update(editing!, { logo: url });
+      setUploadError(null);
+      toast.success("Logo 上传成功");
+    }
+  };
+
+  const handleUploadError = (error: Error) => {
+    setUploadError(error.message);
+    toast.error("Logo 上传失败", { description: error.message });
+  };
+
   if (editingItem) {
     return (
       <div className="space-y-6">
         <button onClick={() => setEditing(null)} className="flex items-center gap-2 text-sm text-[#2563EB]"><ArrowLeft className="w-4 h-4" /> Back</button>
         <SectionCard title={`Edit: ${editingItem.universityName}`}>
           <TextField label="University Name" value={editingItem.universityName} onChange={(v) => update(editing!, { universityName: v })} />
-          <TextField label="Logo URL" value={editingItem.logo} onChange={(v) => update(editing!, { logo: v })} mono />
+          
+          {/* Logo Upload - 如果 Supabase 已配置，使用图片上传；否则显示 URL 输入框 */}
+          {isSupabase && import.meta.env.VITE_SUPABASE_URL ? (
+            <div>
+              <label className="block text-xs font-medium text-[#9CA3AF] uppercase tracking-wider mb-2" style={{ fontFamily: "var(--font-mono)" }}>
+                Logo Upload
+              </label>
+              <ImageUpload
+                bucket="logos"
+                currentUrl={editingItem.logo || undefined}
+                onUploadComplete={handleLogoUpload}
+                onError={handleUploadError}
+                maxSizeMB={2}
+                className="mb-2"
+              />
+              {uploadError && (
+                <p className="text-xs text-red-400 mt-1">{uploadError}</p>
+              )}
+              {editingItem.logo && (
+                <TextField 
+                  label="Logo URL (可手动编辑)" 
+                  value={editingItem.logo} 
+                  onChange={(v) => update(editing!, { logo: v })} 
+                  mono 
+                  className="mt-2"
+                />
+              )}
+            </div>
+          ) : (
+            <TextField label="Logo URL" value={editingItem.logo} onChange={(v) => update(editing!, { logo: v })} mono />
+          )}
+          
           <TextField label="Website URL" value={editingItem.websiteUrl} onChange={(v) => update(editing!, { websiteUrl: v })} mono />
           <TextField label="City" value={editingItem.city} onChange={(v) => update(editing!, { city: v })} />
           <TextField label="Role Description" value={editingItem.roleDescription} onChange={(v) => update(editing!, { roleDescription: v })} />
