@@ -7,13 +7,18 @@ import { motion } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
 import SectionWrapper from "@/components/SectionWrapper";
 import SectionHeading from "@/components/SectionHeading";
-import { agendaSessions, speakers, homepageContent } from "@/lib/data";
+import { agendaSessions as defaultAgendaSessions, speakers, homepageContent } from "@/lib/data";
+import { useAgendaSessions } from "@/hooks/useSupabase";
 import { Clock, MapPin, Users } from "lucide-react";
 
 export default function Agenda() {
-  const dates = useMemo(() => Array.from(new Set(agendaSessions.map((s) => s.date))).sort(), []);
+  // Try to fetch from Supabase, fallback to default data
+  const { data: supabaseAgenda } = useAgendaSessions();
+  const agendaSessions = supabaseAgenda && supabaseAgenda.length > 0 ? supabaseAgenda : defaultAgendaSessions;
+  
+  const dates = useMemo(() => Array.from(new Set(agendaSessions.map((s) => s.date))).sort(), [agendaSessions]);
   const [activeDate, setActiveDate] = useState(dates[0] || "");
-  const tracks = useMemo(() => Array.from(new Set(agendaSessions.map((s) => s.track))), []);
+  const tracks = useMemo(() => Array.from(new Set(agendaSessions.map((s) => s.track))), [agendaSessions]);
   const [activeTrack, setActiveTrack] = useState("All");
 
   const filtered = agendaSessions
@@ -35,16 +40,16 @@ export default function Agenda() {
       </section>
 
       <SectionWrapper>
-        {/* Day Tabs — horizontal scroll on mobile */}
-        <div className="flex gap-2 mb-5 sm:mb-8 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+        {/* Day Tabs — enhanced horizontal scroll on mobile */}
+        <div className="flex gap-3 mb-6 sm:mb-10 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide">
           {dates.map((date, i) => (
             <button
               key={date}
               onClick={() => setActiveDate(date)}
-              className={`px-3 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 rounded-lg ${
                 activeDate === date
-                  ? "bg-[#2563EB] text-white"
-                  : "bg-white/[0.03] text-[#6B7280] hover:text-[#F0F2F8] border border-white/[0.06]"
+                  ? "bg-[#0066ff] text-white shadow-lg shadow-[#0066ff]/30"
+                  : "bg-white/[0.04] text-[#8b99b5] hover:text-[#f5f6fa] hover:bg-white/[0.06] border border-white/[0.08]"
               }`}
               style={{ fontFamily: "var(--font-display)" }}
             >
@@ -53,15 +58,15 @@ export default function Agenda() {
           ))}
         </div>
 
-        {/* Track Filter — horizontal scroll on mobile */}
-        <div className="flex gap-1.5 sm:gap-2 mb-6 sm:mb-10 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+        {/* Track Filter — enhanced horizontal scroll on mobile */}
+        <div className="flex gap-2 sm:gap-3 mb-8 sm:mb-12 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide">
           <button
             onClick={() => setActiveTrack("All")}
-            className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-[11px] font-medium tracking-[0.08em] uppercase transition-all whitespace-nowrap shrink-0 ${
-              activeTrack === "All"
-                ? "border border-[#2563EB]/30 text-[#2563EB] bg-[#2563EB]/10"
-                : "border border-white/[0.06] text-[#6B7280] hover:text-[#F0F2F8]"
-            }`}
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[11px] font-medium tracking-[0.1em] uppercase transition-all whitespace-nowrap shrink-0 rounded-md ${
+                activeTrack === "All"
+                  ? "border border-[#0066ff]/40 text-[#0066ff] bg-[#0066ff]/12"
+                  : "border border-white/[0.08] text-[#8b99b5] hover:text-[#f5f6fa] hover:border-white/[0.12]"
+              }`}
             style={{ fontFamily: "var(--font-mono)" }}
           >
             All Tracks
@@ -70,10 +75,10 @@ export default function Agenda() {
             <button
               key={track}
               onClick={() => setActiveTrack(track)}
-              className={`px-2.5 sm:px-3 py-1 sm:py-1.5 text-[10px] sm:text-[11px] font-medium tracking-[0.08em] uppercase transition-all whitespace-nowrap shrink-0 ${
+              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[11px] font-medium tracking-[0.1em] uppercase transition-all whitespace-nowrap shrink-0 rounded-md ${
                 activeTrack === track
-                  ? "border border-[#2563EB]/30 text-[#2563EB] bg-[#2563EB]/10"
-                  : "border border-white/[0.06] text-[#6B7280] hover:text-[#F0F2F8]"
+                  ? "border border-[#0066ff]/40 text-[#0066ff] bg-[#0066ff]/12"
+                  : "border border-white/[0.08] text-[#8b99b5] hover:text-[#f5f6fa] hover:border-white/[0.12]"
               }`}
               style={{ fontFamily: "var(--font-mono)" }}
             >
@@ -82,54 +87,54 @@ export default function Agenda() {
           ))}
         </div>
 
-        {/* Sessions */}
-        <div className="space-y-2 sm:space-y-3">
+        {/* Sessions — enhanced layout */}
+        <div className="space-y-3 sm:space-y-4">
           {filtered.map((session, i) => {
             const sessionSpeakers = speakers.filter((sp) => session.speakerIds.includes(sp.speakerId));
             return (
               <motion.div
                 key={session.sessionId}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3, delay: i * 0.04 }}
-                className="conference-card flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 p-3 sm:p-5 md:p-6"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: i * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                className="conference-card flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6 p-4 sm:p-6 md:p-8 group"
               >
-                <div className="flex items-center gap-1.5 sm:gap-2 sm:w-40 shrink-0">
-                  <Clock className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#2563EB]" />
-                  <span className="text-xs sm:text-sm text-[#9CA3AF]" style={{ fontFamily: "var(--font-mono)" }}>
+                <div className="flex items-start gap-3 sm:gap-4 sm:w-44 md:w-48 shrink-0">
+                  <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-[#0066ff] mt-0.5 shrink-0" />
+                  <span className="text-sm sm:text-base font-medium text-[#8b99b5]" style={{ fontFamily: "var(--font-mono)" }}>
                     {session.startTime} – {session.endTime}
                   </span>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 mb-1.5 sm:mb-2">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
                     <span
-                      className="text-[9px] sm:text-[10px] font-medium tracking-[0.08em] uppercase px-1.5 sm:px-2.5 py-0.5 sm:py-1 border border-[#2563EB]/20 text-[#2563EB]"
+                      className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase px-3 sm:px-4 py-1.5 border border-[#0066ff]/35 text-[#0066ff] rounded-md"
                       style={{ fontFamily: "var(--font-mono)" }}
                     >
                       {session.format.replace("_", " ")}
                     </span>
                     <span
-                      className="text-[9px] sm:text-[10px] tracking-[0.08em] uppercase text-[#6B7280] flex items-center gap-1"
+                      className="text-[10px] sm:text-[11px] tracking-[0.12em] uppercase text-[#8b99b5] flex items-center gap-1.5"
                       style={{ fontFamily: "var(--font-mono)" }}
                     >
-                      <MapPin className="w-2.5 sm:w-3 h-2.5 sm:h-3" /> {session.stage}
+                      <MapPin className="w-3 sm:w-3.5 h-3 sm:h-3.5" /> {session.stage}
                     </span>
                   </div>
-                  <h3 className="text-sm sm:text-base md:text-lg font-semibold text-[#F0F2F8] leading-tight" style={{ fontFamily: "var(--font-display)" }}>
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-[#f5f6fa] leading-tight mb-2 group-hover:text-[#0066ff] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
                     {session.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-[#6B7280] mt-1 line-clamp-2 sm:line-clamp-none" style={{ fontFamily: "var(--font-body)" }}>
+                  <p className="text-sm sm:text-base text-[#8b99b5] leading-relaxed mb-3" style={{ fontFamily: "var(--font-body)" }}>
                     {session.shortDescription}
                   </p>
                   {sessionSpeakers.length > 0 && (
-                    <div className="flex items-center gap-2 sm:gap-3 mt-2 sm:mt-3">
-                      <Users className="w-3 sm:w-3.5 h-3 sm:h-3.5 text-[#6B7280] shrink-0" />
+                    <div className="flex items-center gap-3 sm:gap-4">
+                      <Users className="w-4 sm:w-5 h-4 sm:h-5 text-[#8b99b5] shrink-0" />
                       <div className="flex -space-x-2 shrink-0">
                         {sessionSpeakers.map((sp) => (
-                          <img key={sp.speakerId} src={sp.photo} alt={sp.fullName} className="w-5 h-5 sm:w-7 sm:h-7 ring-2 ring-[#07090F] object-cover" />
+                          <img key={sp.speakerId} src={sp.photo} alt={sp.fullName} className="w-6 h-6 sm:w-8 sm:h-8 ring-2 ring-[#050d1c] rounded-xl object-cover" />
                         ))}
                       </div>
-                      <span className="text-[11px] sm:text-xs text-[#9CA3AF] truncate" style={{ fontFamily: "var(--font-body)" }}>
+                      <span className="text-xs sm:text-sm text-[#8b99b5] truncate" style={{ fontFamily: "var(--font-body)" }}>
                         {sessionSpeakers.map((sp) => sp.fullName).join(", ")}
                       </span>
                     </div>
@@ -139,7 +144,7 @@ export default function Agenda() {
             );
           })}
           {filtered.length === 0 && (
-            <div className="text-center py-10 sm:py-16 text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-body)" }}>
+            <div className="text-center py-16 sm:py-20 text-base text-[#6B7280]" style={{ fontFamily: "var(--font-body)" }}>
               No sessions found for this selection.
             </div>
           )}

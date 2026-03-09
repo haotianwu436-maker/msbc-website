@@ -7,7 +7,8 @@ import { motion } from "framer-motion";
 import PageLayout from "@/components/PageLayout";
 import SectionWrapper from "@/components/SectionWrapper";
 import SectionHeading from "@/components/SectionHeading";
-import { sponsors, homepageContent, ASSETS } from "@/lib/data";
+import { sponsors as defaultSponsors, homepageContent, ASSETS } from "@/lib/data";
+import { useSponsors } from "@/hooks/useSupabase";
 import { ArrowUpRight } from "lucide-react";
 
 const tierConfig: Record<string, { label: string; size: string; order: number }> = {
@@ -21,6 +22,10 @@ const tierConfig: Record<string, { label: string; size: string; order: number }>
 };
 
 export default function Sponsors() {
+  // Try to fetch from Supabase, fallback to default data
+  const { data: supabaseSponsors } = useSponsors();
+  const sponsors = supabaseSponsors && supabaseSponsors.length > 0 ? supabaseSponsors : defaultSponsors;
+  
   const tiers = Array.from(new Set(sponsors.map((s) => s.tier))).sort(
     (a, b) => (tierConfig[a]?.order || 99) - (tierConfig[b]?.order || 99)
   );
@@ -42,15 +47,15 @@ export default function Sponsors() {
         const config = tierConfig[tier] || { label: tier, size: "w-16 h-16 sm:w-20 sm:h-20", order: 99 };
         return (
           <SectionWrapper key={tier} elevated={ti % 2 === 1}>
-            <div className="text-center mb-6 sm:mb-8 md:mb-10">
+            <div className="text-center mb-8 sm:mb-10 md:mb-12">
               <span
-                className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]"
+                className="text-[10px] sm:text-[11px] font-medium tracking-[0.15em] uppercase text-[#0066ff]"
                 style={{ fontFamily: "var(--font-mono)" }}
               >
                 {config.label}
               </span>
             </div>
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-4 md:gap-6 lg:gap-10">
+            <div className="flex flex-wrap justify-center items-center gap-6 sm:gap-8 md:gap-10 lg:gap-12">
               {tierSponsors.map((sponsor, i) => (
                 <motion.a
                   key={sponsor.sponsorId}
@@ -60,12 +65,12 @@ export default function Sponsors() {
                   initial={{ opacity: 0, y: 10 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
-                  transition={{ duration: 0.4, delay: i * 0.05 }}
-                  className="flex flex-col items-center gap-2 sm:gap-3 group"
+                  transition={{ duration: 0.5, delay: i * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex flex-col items-center gap-3 sm:gap-4 group"
                 >
-                  <div className={`${config.size} conference-card flex items-center justify-center`}>
+                  <div className={`${config.size} conference-card flex items-center justify-center p-3 sm:p-4`}>
                     <span
-                      className="text-[10px] sm:text-xs md:text-sm text-[#6B7280] group-hover:text-[#F0F2F8] transition-colors text-center px-1 sm:px-2 leading-tight"
+                      className="text-[11px] sm:text-xs md:text-sm font-medium text-[#8b99b5] group-hover:text-[#f5f6fa] transition-colors text-center px-2 sm:px-3 leading-tight"
                       style={{ fontFamily: "var(--font-display)" }}
                     >
                       {sponsor.companyName}

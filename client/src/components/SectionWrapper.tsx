@@ -26,7 +26,7 @@ export default function SectionWrapper({
   return (
     <section
       id={id}
-      className={`relative ${elevated ? "bg-[#111827]" : ""} ${spotlight ? "spotlight" : ""} ${bgClassName}`}
+      className={`relative ${elevated ? "bg-[#0f1729] halftone-bg" : "bg-[#050d1c]"} ${spotlight ? "spotlight" : ""} ${bgClassName}`}
     >
       {/* Horizon glow divider at top */}
       <div className="horizon-glow" />

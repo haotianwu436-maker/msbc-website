@@ -163,32 +163,84 @@ export function useAdminAuth() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
-    const session = sessionStorage.getItem("msbc_admin_session");
-    if (session === "authenticated") setIsAuthenticated(true);
+    try {
+      const session = sessionStorage.getItem("msbc_admin_session");
+      if (session === "authenticated") {
+        setIsAuthenticated(true);
+      }
+    } catch (error) {
+      console.warn("Failed to check session:", error);
+    }
   }, []);
 
   const login = (password: string): boolean => {
-    const storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_PASSWORD;
-    if (password === storedPassword) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem("msbc_admin_session", "authenticated");
-      return true;
+    try {
+      // Trim whitespace from password input
+      const trimmedPassword = password.trim();
+      
+      // Get stored password or use default
+      let storedPassword: string;
+      try {
+        storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_PASSWORD;
+      } catch (error) {
+        console.warn("Failed to access localStorage, using default password:", error);
+        storedPassword = DEFAULT_PASSWORD;
+      }
+      
+      // Compare passwords
+      if (trimmedPassword === storedPassword) {
+        setIsAuthenticated(true);
+        try {
+          sessionStorage.setItem("msbc_admin_session", "authenticated");
+        } catch (error) {
+          console.warn("Failed to save session:", error);
+          // Still allow login even if sessionStorage fails
+        }
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Login error:", error);
+      return false;
     }
-    return false;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem("msbc_admin_session");
+    try {
+      sessionStorage.removeItem("msbc_admin_session");
+    } catch (error) {
+      console.warn("Failed to clear session:", error);
+    }
   };
 
   const changePassword = (oldPassword: string, newPassword: string): boolean => {
-    const storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_PASSWORD;
-    if (oldPassword === storedPassword && newPassword.length >= 4) {
-      localStorage.setItem(ADMIN_PASSWORD_KEY, newPassword);
-      return true;
+    try {
+      const trimmedOldPassword = oldPassword.trim();
+      const trimmedNewPassword = newPassword.trim();
+      
+      let storedPassword: string;
+      try {
+        storedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY) || DEFAULT_PASSWORD;
+      } catch (error) {
+        console.warn("Failed to access localStorage:", error);
+        storedPassword = DEFAULT_PASSWORD;
+      }
+      
+      if (trimmedOldPassword === storedPassword && trimmedNewPassword.length >= 4) {
+        try {
+          localStorage.setItem(ADMIN_PASSWORD_KEY, trimmedNewPassword);
+          return true;
+        } catch (error) {
+          console.error("Failed to save new password:", error);
+          return false;
+        }
+      }
+      return false;
+    } catch (error) {
+      console.error("Change password error:", error);
+      return false;
     }
-    return false;
   };
 
   return { isAuthenticated, login, logout, changePassword };

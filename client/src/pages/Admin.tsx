@@ -3,26 +3,84 @@
  * Non-technical content management interface.
  * Password-protected. Uses localStorage for data persistence.
  */
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useCmsData, useAdminAuth } from "@/hooks/useCmsData";
+import { useSupabaseCms } from "@/hooks/useSupabaseCms";
+import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
 import { Link } from "wouter";
+import { toast } from "sonner";
 import {
   Settings, Users, Calendar, Award, Building2, HelpCircle, Mail,
   Rocket, Ticket, FileText, Download, Upload, RotateCcw, Lock,
   LogOut, Eye, ChevronRight, Plus, Trash2, Save, ArrowLeft, X,
+  Database, AlertCircle,
 } from "lucide-react";
 import type { Speaker, AgendaSession, Sponsor, University, FaqItem, ContactMethod } from "@/lib/data";
+import ImageUpload from "@/components/ImageUpload";
 
 // ─── Login Screen ─────────────────────────────────────────────
-function LoginScreen({ onLogin }: { onLogin: (pw: string) => boolean }) {
+function LoginScreen({ 
+  onLogin, 
+  onSupabaseLogin,
+  supabaseAuthAvailable = false,
+}: { 
+  onLogin: (pw: string) => boolean;
+  onSupabaseLogin?: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  supabaseAuthAvailable?: boolean;
+}) {
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!onLogin(password)) {
-      setError(true);
-      setTimeout(() => setError(false), 2000);
+    
+    // 验证必填字段
+    if (!password.trim()) {
+      setError("请输入密码");
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+    
+    if (supabaseAuthAvailable && !email.trim()) {
+      setError("请输入邮箱");
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // 如果 Supabase Auth 可用，优先使用 Supabase Auth
+      if (supabaseAuthAvailable && onSupabaseLogin) {
+        const result = await onSupabaseLogin(email.trim(), password);
+        
+        if (result.success) {
+          // Supabase Auth 登录成功
+          return;
+        } else {
+          // Supabase Auth 失败，尝试简单密码验证
+          const simpleAuthSuccess = onLogin(password);
+          if (!simpleAuthSuccess) {
+            setError(result.error || "登录失败：邮箱或密码错误");
+            setPassword("");
+          }
+        }
+      } else {
+        // 只使用简单密码验证
+        const success = onLogin(password);
+        if (!success) {
+          setError("密码错误");
+          setPassword("");
+        }
+      }
+    } catch (err: any) {
+      setError(err.message || "登录失败，请重试");
+      setPassword("");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -34,26 +92,91 @@ function LoginScreen({ onLogin }: { onLogin: (pw: string) => boolean }) {
             <span className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>MSBC</span>
             <span className="text-[10px] font-medium tracking-wider text-[#2563EB] border border-[#2563EB]/30 px-2 py-0.5" style={{ fontFamily: "var(--font-mono)" }}>ADMIN</span>
           </div>
-          <p className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-body)" }}>Enter password to access the dashboard</p>
+          <p className="text-sm text-[#6B7280] mb-2" style={{ fontFamily: "var(--font-body)" }}>
+            {supabaseAuthAvailable ? "使用 Supabase 登录" : "输入密码访问管理面板"}
+          </p>
+          {supabaseAuthAvailable && (
+            <p className="text-xs text-[#8b99b5] mb-4" style={{ fontFamily: "var(--font-mono)" }}>
+              如果 Supabase 登录失败，将自动尝试简单密码验证
+            </p>
+          )}
         </div>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {supabaseAuthAvailable && (
+            <div>
+              <label className="block text-xs font-medium text-[#9CA3AF] uppercase tracking-wider mb-2" style={{ fontFamily: "var(--font-mono)" }}>
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@msbc.my"
+                className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#6B7280] focus:outline-none focus:border-[#2563EB]/50 rounded"
+                style={{ fontFamily: "var(--font-body)" }}
+                autoFocus
+                required={supabaseAuthAvailable}
+              />
+            </div>
+          )}
           <div>
+            <label className="block text-xs font-medium text-[#9CA3AF] uppercase tracking-wider mb-2" style={{ fontFamily: "var(--font-mono)" }}>
+              Password
+            </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#6B7280] focus:outline-none focus:border-[#2563EB]/50"
+              className="w-full px-4 py-3 bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#6B7280] focus:outline-none focus:border-[#2563EB]/50 rounded"
               style={{ fontFamily: "var(--font-body)" }}
-              autoFocus
+              autoFocus={!supabaseAuthAvailable}
+              required
             />
           </div>
-          {error && <p className="text-xs text-red-400" style={{ fontFamily: "var(--font-body)" }}>Incorrect password. Please try again.</p>}
-          <button type="submit" className="w-full py-3 bg-[#2563EB] text-white text-sm font-medium hover:bg-[#1D4ED8] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
-            <Lock className="w-3.5 h-3.5 inline mr-2" />Sign In
+          {error && (
+            <div className="px-4 py-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
+                <div className="flex-1">
+                  <p className="font-medium mb-1">登录失败</p>
+                  <p className="text-xs opacity-90">{error}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="w-full py-3 bg-[#2563EB] text-white text-sm font-medium hover:bg-[#1D4ED8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 rounded" 
+            style={{ fontFamily: "var(--font-display)" }}
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                登录中...
+              </>
+            ) : (
+              <>
+                <Lock className="w-3.5 h-3.5" />
+                Sign In
+              </>
+            )}
           </button>
         </form>
-        <p className="text-center text-[11px] text-[#4B5563] mt-6" style={{ fontFamily: "var(--font-mono)" }}>Default password: msbc2026</p>
+        <div className="mt-6 space-y-2">
+          {supabaseAuthAvailable && (
+            <div className="flex items-center gap-2 text-xs text-[#8b99b5] px-4 py-2 bg-[#0066ff]/5 border border-[#0066ff]/20 rounded">
+              <Database className="w-3.5 h-3.5 text-[#0066ff]" />
+              <span style={{ fontFamily: "var(--font-mono)" }}>Supabase Auth 已启用</span>
+            </div>
+          )}
+          {!supabaseAuthAvailable && (
+            <p className="text-center text-[11px] text-[#4B5563]" style={{ fontFamily: "var(--font-mono)" }}>
+              Default password: msbc2026
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -207,10 +330,80 @@ function HomepageContentPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
 }
 
 // ─── Speakers Panel ───────────────────────────────────────────
-function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
+function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnType<typeof useSupabaseCms> }) {
   const [editing, setEditing] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [localSpeaker, setLocalSpeaker] = useState<Speaker | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 检查是否是 Supabase CMS
+  const isSupabase = "isConfigured" in cms && cms.isConfigured;
+  
+  // 获取 speakers 数组（安全）
+  const speakers = (cms.speakers || []) as Speaker[];
 
-  const addSpeaker = () => {
+  // 保存待处理的更改
+  const pendingChangesRef = useRef<Partial<Speaker>>({});
+
+  // 防抖保存函数
+  const debouncedSave = useCallback((id: string, patch: Partial<Speaker>) => {
+    // 清除之前的定时器
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // 累积所有更改
+    pendingChangesRef.current = { ...pendingChangesRef.current, ...patch };
+
+    // 立即更新本地状态（让 UI 响应快）
+    setLocalSpeaker((prev) => {
+      if (prev && prev.speakerId === id) {
+        return { ...prev, ...pendingChangesRef.current };
+      }
+      return prev;
+    });
+
+    // 如果是 localStorage，立即保存
+    if (!isSupabase) {
+      (cms as ReturnType<typeof useCmsData>).setSpeakers((prev) => 
+        prev.map((s) => s.speakerId === id ? { ...s, ...pendingChangesRef.current } : s)
+      );
+      pendingChangesRef.current = {};
+      return;
+    }
+
+    // 如果是 Supabase，延迟保存（防抖）- 停止输入 2 秒后才保存
+    saveTimeoutRef.current = setTimeout(async () => {
+      if (isSupabase && "updateSpeaker" in cms && cms.updateSpeaker && Object.keys(pendingChangesRef.current).length > 0) {
+        try {
+          setSaving(true);
+          const changesToSave = { ...pendingChangesRef.current };
+          pendingChangesRef.current = {};
+          await cms.updateSpeaker(id, changesToSave);
+          toast.success("保存成功");
+        } catch (error: any) {
+          console.error("Failed to update speaker:", error);
+          const errorMessage = error?.message || error?.toString() || "未知错误";
+          toast.error("更新失败", {
+            description: errorMessage,
+          });
+        } finally {
+          setSaving(false);
+        }
+      }
+    }, 2000); // 2 秒延迟 - 停止输入 2 秒后才保存
+  }, [isSupabase, cms]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const addSpeaker = async () => {
     const newSpeaker: Speaker = {
       speakerId: `sp-${Date.now()}`,
       fullName: "New Speaker",
@@ -221,31 +414,158 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
       topicTags: [],
       socialLinks: [],
       featured: false,
-      sortOrder: cms.speakers.length + 1,
+      sortOrder: speakers.length + 1,
     };
-    cms.setSpeakers([...cms.speakers, newSpeaker]);
-    setEditing(newSpeaker.speakerId);
+    
+    if (isSupabase && "createSpeaker" in cms && cms.createSpeaker) {
+      try {
+        setSaving(true);
+        await cms.createSpeaker(newSpeaker);
+        setEditing(newSpeaker.speakerId);
+        toast.success("演讲者创建成功");
+      } catch (error: any) {
+        console.error("Failed to create speaker:", error);
+        const errorMessage = error?.message || error?.toString() || "未知错误";
+        toast.error("创建失败", {
+          description: errorMessage,
+        });
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      (cms as ReturnType<typeof useCmsData>).setSpeakers([...speakers, newSpeaker]);
+      setEditing(newSpeaker.speakerId);
+    }
   };
 
   const updateSpeaker = (id: string, patch: Partial<Speaker>) => {
-    cms.setSpeakers(cms.speakers.map((s) => s.speakerId === id ? { ...s, ...patch } : s));
+    debouncedSave(id, patch);
   };
 
-  const deleteSpeaker = (id: string) => {
-    cms.setSpeakers(cms.speakers.filter((s) => s.speakerId !== id));
-    if (editing === id) setEditing(null);
+  const deleteSpeaker = async (id: string) => {
+    if (!confirm("确定要删除这个演讲者吗？")) return;
+    
+    if (isSupabase && "deleteSpeaker" in cms && cms.deleteSpeaker) {
+      try {
+        setSaving(true);
+        await cms.deleteSpeaker(id);
+        if (editing === id) setEditing(null);
+        toast.success("演讲者删除成功");
+      } catch (error: any) {
+        console.error("Failed to delete speaker:", error);
+        const errorMessage = error?.message || error?.toString() || "未知错误";
+        toast.error("删除失败", {
+          description: errorMessage,
+        });
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      (cms as ReturnType<typeof useCmsData>).setSpeakers(speakers.filter((s) => s.speakerId !== id));
+      if (editing === id) setEditing(null);
+    }
   };
 
-  const editingSpeaker = cms.speakers.find((s) => s.speakerId === editing);
+  const editingSpeaker = localSpeaker || speakers.find((s) => s.speakerId === editing);
+
+  // 当切换到编辑模式时，初始化本地状态
+  useEffect(() => {
+    if (editing) {
+      const speaker = speakers.find((s) => s.speakerId === editing);
+      if (speaker) {
+        setLocalSpeaker(speaker);
+        pendingChangesRef.current = {}; // 重置待处理的更改
+      }
+    } else {
+      setLocalSpeaker(null);
+      pendingChangesRef.current = {};
+      // 清除未保存的更改
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    }
+  }, [editing, speakers]);
 
   if (editingSpeaker) {
     return (
       <div className="space-y-6">
-        <button onClick={() => setEditing(null)} className="flex items-center gap-2 text-sm text-[#2563EB] hover:text-[#3B82F6]" style={{ fontFamily: "var(--font-display)" }}>
-          <ArrowLeft className="w-4 h-4" /> Back to List
-        </button>
+        <div className="flex items-center justify-between">
+          <button onClick={() => setEditing(null)} className="flex items-center gap-2 text-sm text-[#2563EB] hover:text-[#3B82F6]" style={{ fontFamily: "var(--font-display)" }}>
+            <ArrowLeft className="w-4 h-4" /> Back to List
+          </button>
+          {isSupabase && (
+            <div className="flex items-center gap-3">
+              {saving ? (
+                <div className="bg-[#0066ff]/10 border border-[#0066ff]/30 text-[#0066ff] px-4 py-2 rounded text-sm inline-flex items-center gap-2">
+                  <div className="w-3 h-3 border-2 border-[#0066ff] border-t-transparent rounded-full animate-spin" />
+                  保存中...
+                </div>
+              ) : (
+                <div className="text-xs text-[#8b99b5]">
+                  停止输入 2 秒后自动保存
+                </div>
+              )}
+              <button
+                onClick={async () => {
+                  if (editing && "updateSpeaker" in cms && cms.updateSpeaker) {
+                    // 清除防抖定时器
+                    if (saveTimeoutRef.current) {
+                      clearTimeout(saveTimeoutRef.current);
+                    }
+                    try {
+                      setSaving(true);
+                      // 保存所有待处理的更改
+                      const changesToSave = { ...pendingChangesRef.current };
+                      pendingChangesRef.current = {};
+                      if (Object.keys(changesToSave).length > 0) {
+                        await cms.updateSpeaker(editing, changesToSave);
+                      }
+                    } catch (error: any) {
+                      console.error("Failed to save:", error);
+                      const errorMessage = error?.message || error?.toString() || "未知错误";
+                      alert(`保存失败: ${errorMessage}`);
+                    } finally {
+                      setSaving(false);
+                    }
+                  }
+                }}
+                disabled={saving || Object.keys(pendingChangesRef.current).length === 0}
+                className="flex items-center gap-2 px-4 py-2 bg-[#0066ff] text-white text-sm font-medium hover:bg-[#0052cc] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ fontFamily: "var(--font-display)" }}
+              >
+                <Save className="w-4 h-4" />
+                立即保存
+              </button>
+            </div>
+          )}
+        </div>
         <SectionCard title={`Edit: ${editingSpeaker.fullName}`}>
           <TextField label="Full Name" value={editingSpeaker.fullName} onChange={(v) => updateSpeaker(editing!, { fullName: v })} />
+          
+          {/* Image Upload for Supabase */}
+          {isSupabase && "uploadImage" in cms ? (
+            <div>
+              <label className="block text-xs font-medium text-[#9CA3AF] uppercase tracking-wider mb-2" style={{ fontFamily: "var(--font-mono)" }}>
+                Photo Upload
+              </label>
+              <ImageUpload
+                bucket="SPEAKER_PHOTOS"
+                currentUrl={editingSpeaker.photo}
+                onUploadComplete={(url) => {
+                  updateSpeaker(editing!, { photo: url });
+                  toast.success("图片上传成功");
+                }}
+                onError={(error) => {
+                  console.error("Image upload error:", error);
+                  toast.error("图片上传失败", {
+                    description: error.message,
+                  });
+                }}
+                maxSizeMB={5}
+              />
+            </div>
+          ) : null}
+          
           <TextField label="Photo URL" value={editingSpeaker.photo} onChange={(v) => updateSpeaker(editing!, { photo: v })} mono />
           <div className="grid grid-cols-2 gap-3">
             <TextField label="Title" value={editingSpeaker.title} onChange={(v) => updateSpeaker(editing!, { title: v })} />
@@ -263,15 +583,38 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
     );
   }
 
+  // 检查加载状态和错误
+  const isLoading = isSupabase && "loading" in cms ? cms.loading : false;
+  const error = isSupabase && "errors" in cms ? cms.errors?.speakers : null;
+
   return (
     <div className="space-y-4">
+      {/* Error Display */}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm">
+          <strong>错误：</strong> {error?.message || String(error) || "加载演讲者数据失败"}
+        </div>
+      )}
+      
+      {/* Loading State */}
+      {isLoading && (
+        <div className="text-center py-8 text-[#8b99b5]">
+          加载中...
+        </div>
+      )}
+      
       <div className="flex justify-between items-center">
-        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{cms.speakers.length} speakers</span>
-        <button onClick={addSpeaker} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-xs font-medium hover:bg-[#1D4ED8] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
+        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{speakers.length} speakers</span>
+        <button onClick={addSpeaker} disabled={saving || isLoading} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-xs font-medium hover:bg-[#1D4ED8] transition-colors disabled:opacity-50" style={{ fontFamily: "var(--font-display)" }}>
           <Plus className="w-3 h-3" /> Add Speaker
         </button>
       </div>
-      {cms.speakers.sort((a, b) => a.sortOrder - b.sortOrder).map((speaker) => (
+      {speakers.length === 0 && !isLoading && (
+        <div className="text-center py-8 text-[#8b99b5]">
+          暂无演讲者数据。点击 "Add Speaker" 添加第一个。
+        </div>
+      )}
+      {speakers.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0)).map((speaker) => (
         <div key={speaker.speakerId} className="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4 flex items-center gap-3 group">
           <div className="w-10 h-10 bg-white/[0.04] border border-white/[0.06] overflow-hidden shrink-0">
             {speaker.photo ? <img src={speaker.photo} alt="" className="w-full h-full object-cover" /> : <Users className="w-5 h-5 text-[#4B5563] m-auto mt-2.5" />}
@@ -297,7 +640,7 @@ function AgendaPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
 
   const addSession = () => {
     const newSession: AgendaSession = {
-      sessionId: `ses-${Date.now()}`, title: "New Session", shortDescription: "", date: "2026-08-15",
+      sessionId: `ses-${Date.now()}`, title: "New Session", shortDescription: "", date: "2026-08-29",
       startTime: "09:00", endTime: "10:00", format: "keynote", track: "Main Stage", stage: "Main Hall",
       speakerIds: [], featured: false, sortOrder: cms.agendaSessions.length + 1,
     };
@@ -622,14 +965,42 @@ function TicketsPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
 
 // ─── Main Admin Component ─────────────────────────────────────
 export default function Admin() {
-  const auth = useAdminAuth();
+  const simpleAuth = useAdminAuth();
+  const supabaseAuth = useSupabaseAuth();
   const cms = useCmsData();
+  const supabaseCms = useSupabaseCms();
   const [activePanel, setActivePanel] = useState("site");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  if (!auth.isAuthenticated) {
-    return <LoginScreen onLogin={auth.login} />;
+  // Use Supabase if configured, otherwise fall back to localStorage
+  const useSupabase = supabaseCms.isConfigured;
+  const activeCms = useSupabase ? supabaseCms : cms;
+  
+  // Use Supabase Auth if configured, otherwise use simple password auth
+  const useSupabaseAuthForLogin = supabaseAuth.isConfigured;
+  const isAuthenticated = useSupabaseAuthForLogin ? supabaseAuth.isAuthenticated : simpleAuth.isAuthenticated;
+  const isLoadingAuth = useSupabaseAuthForLogin ? supabaseAuth.isLoading : false;
+
+  if (isLoadingAuth) {
+    return (
+      <div className="min-h-screen bg-[#07090F] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-body)" }}>检查登录状态...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <LoginScreen 
+        onLogin={simpleAuth.login} 
+        onSupabaseLogin={useSupabaseAuthForLogin ? supabaseAuth.login : undefined}
+        supabaseAuthAvailable={useSupabaseAuthForLogin}
+      />
+    );
   }
 
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -638,8 +1009,13 @@ export default function Admin() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const result = cms.importData(ev.target?.result as string);
-      if (result) alert("Data imported successfully!");
-      else alert("Failed to import data. Please check the file format.");
+      if (result) {
+        toast.success("数据导入成功");
+      } else {
+        toast.error("数据导入失败", {
+          description: "请检查文件格式是否正确",
+        });
+      }
     };
     reader.readAsText(file);
   };
@@ -649,7 +1025,7 @@ export default function Admin() {
       case "site": return <SiteSettingsPanel cms={cms} />;
       case "event": return <EventEditionPanel cms={cms} />;
       case "homepage": return <HomepageContentPanel cms={cms} />;
-      case "speakers": return <SpeakersPanel cms={cms} />;
+      case "speakers": return <SpeakersPanel cms={activeCms} />;
       case "agenda": return <AgendaPanel cms={cms} />;
       case "sponsors": return <SponsorsPanel cms={cms} />;
       case "universities": return <UniversitiesPanel cms={cms} />;
@@ -702,19 +1078,33 @@ export default function Admin() {
           <Link href="/2026" className="flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-[#2563EB] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
             <Eye className="w-3.5 h-3.5" /> View Website
           </Link>
-          <button onClick={cms.exportData} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-[#2563EB] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
+          <button onClick={() => {
+            cms.exportData();
+            toast.success("数据导出成功");
+          }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-[#2563EB] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
             <Download className="w-3.5 h-3.5" /> Export Data
           </button>
           <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-[#2563EB] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
             <Upload className="w-3.5 h-3.5" /> Import Data
           </button>
           <input ref={fileInputRef} type="file" accept=".json" onChange={handleImport} className="hidden" />
-          <button onClick={() => { if (confirm("Reset all data to defaults?")) cms.resetAll(); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-orange-400 transition-colors" style={{ fontFamily: "var(--font-display)" }}>
+          <button onClick={() => { 
+            if (confirm("确定要重置所有数据为默认值吗？此操作不可撤销。")) {
+              cms.resetAll();
+              toast.success("数据已重置为默认值");
+            }
+          }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-orange-400 transition-colors" style={{ fontFamily: "var(--font-display)" }}>
             <RotateCcw className="w-3.5 h-3.5" /> Reset to Defaults
           </button>
-          <button onClick={auth.logout} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-red-400 transition-colors" style={{ fontFamily: "var(--font-display)" }}>
-            <LogOut className="w-3.5 h-3.5" /> Sign Out
-          </button>
+                 <button onClick={() => {
+                   if (useSupabaseAuthForLogin) {
+                     supabaseAuth.logout();
+                   } else {
+                     simpleAuth.logout();
+                   }
+                 }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-[#6B7280] hover:text-red-400 transition-colors" style={{ fontFamily: "var(--font-display)" }}>
+                   <LogOut className="w-3.5 h-3.5" /> Sign Out
+                 </button>
         </div>
       </aside>
 
@@ -728,9 +1118,16 @@ export default function Admin() {
             <h1 className="text-lg sm:text-xl font-bold text-[#F0F2F8] pl-10 lg:pl-0" style={{ fontFamily: "var(--font-display)" }}>
               {navItems.find((n) => n.id === activePanel)?.label}
             </h1>
-            <p className="text-[11px] text-[#4B5563] hidden sm:block" style={{ fontFamily: "var(--font-mono)" }}>
-              Changes save automatically
-            </p>
+            <div className="flex items-center gap-4">
+              {/* 临时禁用 Supabase 状态显示 */}
+              <div className="flex items-center gap-2 text-[11px] text-[#8b99b5] hidden sm:flex" style={{ fontFamily: "var(--font-mono)" }}>
+                <AlertCircle className="w-3.5 h-3.5" />
+                Using Local Storage
+              </div>
+              <p className="text-[11px] text-[#4B5563] hidden sm:block" style={{ fontFamily: "var(--font-mono)" }}>
+                Changes save automatically
+              </p>
+            </div>
           </div>
         </header>
         <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">

@@ -27,24 +27,24 @@ export default function SectionHeading({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className={`max-w-4xl mb-10 sm:mb-14 md:mb-20 lg:mb-24 ${alignClass}`}
+      className={`max-w-5xl mb-12 sm:mb-16 md:mb-20 lg:mb-28 ${alignClass}`}
     >
       {label && (
         <span
-          className="inline-block text-xs font-medium tracking-[0.15em] uppercase text-[#2563EB] mb-4 sm:mb-6"
+          className="inline-block text-[10px] sm:text-xs font-medium tracking-[0.18em] uppercase text-[#0066ff] mb-5 sm:mb-7 md:mb-8"
           style={{ fontFamily: "var(--font-mono)" }}
         >
           {label}
         </span>
       )}
-      <h2 className="headline-lg text-[#F0F2F8] mb-4 sm:mb-6">
+      <h2 className="headline-lg text-[#f5f6fa] mb-5 sm:mb-7 md:mb-8">
         {title}
       </h2>
       {subtitle && (
         <p
-          className={`text-base sm:text-lg md:text-xl leading-relaxed ${
+          className={`text-lg sm:text-xl md:text-2xl leading-[1.7] ${
             align === "center" ? "mx-auto max-w-3xl" : ""
-          } text-[#6B7280]`}
+          } text-[#8b99b5]`}
           style={{ fontFamily: "var(--font-body)" }}
         >
           {subtitle}

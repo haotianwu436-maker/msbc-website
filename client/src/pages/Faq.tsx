@@ -8,7 +8,8 @@ import { Link } from "wouter";
 import PageLayout from "@/components/PageLayout";
 import SectionWrapper from "@/components/SectionWrapper";
 import SectionHeading from "@/components/SectionHeading";
-import { faqItems, homepageContent } from "@/lib/data";
+import { faqItems as defaultFaqItems, homepageContent } from "@/lib/data";
+import { useFaqItems } from "@/hooks/useSupabase";
 import { ChevronDown, ArrowUpRight } from "lucide-react";
 
 const categoryLabels: Record<string, string> = {
@@ -20,6 +21,10 @@ const categoryLabels: Record<string, string> = {
 };
 
 export default function Faq() {
+  // Try to fetch from Supabase, fallback to default data
+  const { data: supabaseFaqs } = useFaqItems();
+  const faqItems = supabaseFaqs && supabaseFaqs.length > 0 ? supabaseFaqs : defaultFaqItems;
+  
   const categories = Array.from(new Set(faqItems.map((f) => f.category)));
   const [activeCategory, setActiveCategory] = useState("general");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -35,16 +40,16 @@ export default function Faq() {
       </section>
 
       <SectionWrapper>
-        {/* Category Tabs — horizontal scroll on mobile */}
-        <div className="flex gap-1.5 sm:gap-2 mb-6 sm:mb-10 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide">
+        {/* Category Tabs — enhanced horizontal scroll on mobile */}
+        <div className="flex gap-3 mb-8 sm:mb-12 overflow-x-auto pb-3 -mx-1 px-1 scrollbar-hide">
           {categories.map((cat) => (
             <button
               key={cat}
               onClick={() => { setActiveCategory(cat); setOpenId(null); }}
-              className={`px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 ${
+              className={`px-4 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm font-medium transition-all whitespace-nowrap shrink-0 rounded-lg ${
                 activeCategory === cat
-                  ? "bg-[#2563EB] text-white"
-                  : "bg-white/[0.03] text-[#6B7280] hover:text-[#F0F2F8] border border-white/[0.06]"
+                  ? "bg-[#0066ff] text-white shadow-lg shadow-[#0066ff]/30"
+                  : "bg-white/[0.04] text-[#8b99b5] hover:text-[#f5f6fa] hover:bg-white/[0.06] border border-white/[0.08]"
               }`}
               style={{ fontFamily: "var(--font-display)" }}
             >
@@ -53,28 +58,34 @@ export default function Faq() {
           ))}
         </div>
 
-        {/* FAQ Items */}
-        <div className="max-w-3xl mx-auto space-y-1.5 sm:space-y-2">
+        {/* FAQ Items — enhanced layout */}
+        <div className="max-w-4xl mx-auto space-y-2 sm:space-y-3">
           {filtered.map((faq, i) => (
             <motion.div
               key={faq.faqId}
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: i * 0.03 }}
+              transition={{ duration: 0.4, delay: i * 0.04, ease: [0.16, 1, 0.3, 1] }}
               className="conference-card overflow-hidden"
             >
               <button
                 onClick={() => setOpenId(openId === faq.faqId ? null : faq.faqId)}
-                className="w-full flex items-center justify-between p-3 sm:p-4 md:p-5 text-left"
+                className="w-full flex items-center justify-between p-4 sm:p-5 md:p-6 text-left group"
               >
-                <span className="text-xs sm:text-sm md:text-base font-medium text-[#F0F2F8] pr-3 sm:pr-4" style={{ fontFamily: "var(--font-display)" }}>
+                <span className="text-sm sm:text-base md:text-lg font-semibold text-[#F0F2F8] pr-4 sm:pr-6 group-hover:text-[#2563EB] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
                   {faq.question}
                 </span>
-                <ChevronDown className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#2563EB] shrink-0 transition-transform duration-200 ${openId === faq.faqId ? "rotate-180" : ""}`} />
+                <ChevronDown className={`w-4 h-4 sm:w-5 sm:h-5 text-[#2563EB] shrink-0 transition-transform duration-300 ${openId === faq.faqId ? "rotate-180" : ""}`} />
               </button>
               {openId === faq.faqId && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="px-3 sm:px-4 md:px-5 pb-3 sm:pb-4 md:pb-5">
-                  <p className="text-xs sm:text-sm text-[#9CA3AF] leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }} 
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="px-4 sm:px-5 md:px-6 pb-4 sm:pb-5 md:pb-6"
+                >
+                  <p className="text-sm sm:text-base text-[#9CA3AF] leading-relaxed" style={{ fontFamily: "var(--font-body)" }}>
                     {faq.answer}
                   </p>
                 </motion.div>

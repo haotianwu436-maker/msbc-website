@@ -26,7 +26,7 @@ export default function Tickets() {
           <SectionHeading label="Registration" title={c.heroHeadline} subtitle={c.heroSupportingCopy} />
           <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mt-2">
             <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
-              Aug 15–17, 2026
+              Aug 29–30, 2026
             </span>
             <span className="w-4 sm:w-6 h-[1px] bg-white/20 self-center" />
             <span className="text-[10px] sm:text-[11px] font-medium tracking-[0.12em] uppercase text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
