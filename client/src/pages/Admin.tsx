@@ -764,8 +764,10 @@ function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> | Retur
   const [editing, setEditing] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   
-  // Check if Supabase is configured
-  const isSupabase = "isConfigured" in cms && cms.isConfigured;
+  // Check if Supabase is configured (check both cms.isConfigured and environment variables)
+  const isSupabaseConfigured = 
+    ("isConfigured" in cms && cms.isConfigured) || 
+    !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
   
   const addUni = () => {
     const n: University = { universityId: `uni-${Date.now()}`, universityName: "New University", logo: "", category: "participating", roleDescription: "", websiteUrl: "#", city: "Kuala Lumpur", displayOrder: cms.universities.length + 1 };
@@ -797,7 +799,7 @@ function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> | Retur
           <TextField label="University Name" value={editingItem.universityName} onChange={(v) => update(editing!, { universityName: v })} />
           
           {/* Logo Upload - 如果 Supabase 已配置，使用图片上传；否则显示 URL 输入框 */}
-          {isSupabase && import.meta.env.VITE_SUPABASE_URL ? (
+          {isSupabaseConfigured ? (
             <div>
               <label className="block text-xs font-medium text-[#9CA3AF] uppercase tracking-wider mb-2" style={{ fontFamily: "var(--font-mono)" }}>
                 Logo Upload
