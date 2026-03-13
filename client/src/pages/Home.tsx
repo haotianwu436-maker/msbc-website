@@ -22,7 +22,7 @@ import {
   contactPageContent,
   siteSettings,
 } from "@/lib/data";
-import { useSpeakers, useAgendaSessions, useSponsors, useFaqItems } from "@/hooks/useSupabase";
+import { useSpeakers, useAgendaSessions, useSponsors, useFaqItems, useUniversities } from "@/hooks/useSupabase";
 import {
   ArrowRight,
   ArrowUpRight,
@@ -433,8 +433,8 @@ function HackathonPreview() {
 // ─── Universities Preview ──────────────────────────────────────
 function UniversitiesPreview() {
   const { universities: content } = homepageContent;
-  // Universities 目前只使用默认数据（Supabase 集成待添加）
-  const universities = defaultUniversities;
+  const { data: universitiesData, loading: universitiesLoading } = useUniversities();
+  const universities = universitiesData.length > 0 ? universitiesData : defaultUniversities;
   return (
     <SectionWrapper>
       <SectionHeading

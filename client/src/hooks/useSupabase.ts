@@ -329,6 +329,72 @@ export async function deleteFaqItem(faqId: string) {
   if (error) throw error;
 }
 
+// ─── Universities ──────────────────────────────────────────────────
+function universityToDb(university: Partial<University>): any {
+  const db: any = {};
+  if (university.universityId !== undefined) db.university_id = university.universityId;
+  if (university.universityName !== undefined) db.university_name = university.universityName;
+  if (university.logo !== undefined) db.logo = university.logo;
+  if (university.category !== undefined) db.category = university.category;
+  if (university.roleDescription !== undefined) db.role_description = university.roleDescription;
+  if (university.websiteUrl !== undefined) db.website_url = university.websiteUrl;
+  if (university.city !== undefined) db.city = university.city;
+  if (university.displayOrder !== undefined) db.display_order = university.displayOrder;
+  return db;
+}
+
+function universityFromDb(db: any): University {
+  return {
+    universityId: db.university_id,
+    universityName: db.university_name,
+    logo: db.logo || "",
+    category: db.category,
+    roleDescription: db.role_description || "",
+    websiteUrl: db.website_url || "",
+    city: db.city || "",
+    displayOrder: db.display_order || 0,
+  };
+}
+
+export function useUniversities() {
+  const { data: rawData, loading, error, refetch } = useSupabaseData<any>(TABLES.UNIVERSITIES, {
+    orderBy: "display_order",
+    ascending: true,
+  });
+
+  const data = rawData.map(universityFromDb);
+
+  return { data, loading, error, refetch };
+}
+
+export async function createUniversity(university: Omit<University, "universityId"> & { universityId?: string }) {
+  const universityData = {
+    ...university,
+    universityId: university.universityId || `uni-${Date.now()}`,
+  };
+  const dbData = universityToDb(universityData);
+  const { data, error } = await supabase.from(TABLES.UNIVERSITIES).insert([dbData]).select().single();
+  if (error) throw error;
+  return universityFromDb(data);
+}
+
+export async function updateUniversity(universityId: string, updates: Partial<University>) {
+  const dbUpdates = universityToDb(updates);
+  const { data, error } = await supabase
+    .from(TABLES.UNIVERSITIES)
+    .update({ ...dbUpdates, updated_at: new Date().toISOString() })
+    .eq("university_id", universityId)
+    .select()
+    .single();
+  if (error) throw error;
+  return universityFromDb(data);
+}
+
+export async function deleteUniversity(universityId: string) {
+  const { error } = await supabase.from(TABLES.UNIVERSITIES).delete().eq("university_id", universityId);
+  if (error) throw error;
+}
+
 // ─── Image Upload ──────────────────────────────────────────────────
 export async function uploadImage(
   file: File,

@@ -348,6 +348,7 @@ export const universities: University[] = [
   { universityId: "uni-004", universityName: "Taylor's University", logo: "https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=200&h=200&fit=crop", category: "participating", roleDescription: "Participating university", websiteUrl: "#", city: "Subang Jaya", displayOrder: 4 },
   { universityId: "uni-005", universityName: "INTI International University", logo: "https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?w=200&h=200&fit=crop", category: "participating", roleDescription: "Participating university", websiteUrl: "#", city: "Nilai", displayOrder: 5 },
   { universityId: "uni-006", universityName: "Asia Pacific University", logo: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?w=200&h=200&fit=crop", category: "participating", roleDescription: "Participating university", websiteUrl: "#", city: "Kuala Lumpur", displayOrder: 6 },
+  { universityId: "uni-007", universityName: "Universiti Tunku Abdul Rahman", logo: "https://images.unsplash.com/photo-1562774053-701939374585?w=200&h=200&fit=crop", category: "participating", roleDescription: "Participating university", websiteUrl: "#", city: "Kampar", displayOrder: 7 },
 ];
 
 // ─── FAQ Items ─────────────────────────────────────────────────

@@ -7,7 +7,8 @@ import { Link } from "wouter";
 import PageLayout from "@/components/PageLayout";
 import SectionWrapper from "@/components/SectionWrapper";
 import SectionHeading from "@/components/SectionHeading";
-import { universities, homepageContent } from "@/lib/data";
+import { universities as defaultUniversities, homepageContent } from "@/lib/data";
+import { useUniversities } from "@/hooks/useSupabase";
 import { MapPin, ArrowUpRight } from "lucide-react";
 
 const categoryConfig: Record<string, { label: string; description: string; order: number }> = {
@@ -17,6 +18,9 @@ const categoryConfig: Record<string, { label: string; description: string; order
 };
 
 export default function Universities() {
+  const { data: universitiesData, loading: universitiesLoading } = useUniversities();
+  const universities = universitiesData.length > 0 ? universitiesData : defaultUniversities;
+  
   const categories = Array.from(new Set(universities.map((u) => u.category))).sort(
     (a, b) => (categoryConfig[a]?.order || 99) - (categoryConfig[b]?.order || 99)
   );
@@ -45,7 +49,7 @@ export default function Universities() {
                 {config.description}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 md:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-3 md:gap-4">
               {unis.map((uni, i) => (
                 <motion.a
                   key={uni.universityId}
@@ -56,22 +60,22 @@ export default function Universities() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true, margin: "-50px" }}
                   transition={{ duration: 0.4, delay: i * 0.04 }}
-                  className="conference-card p-3 sm:p-4 md:p-5 flex items-center gap-3 sm:gap-4 group"
+                  className="conference-card p-4 sm:p-4 md:p-5 flex items-center gap-3 sm:gap-4 group touch-manipulation min-h-[72px] sm:min-h-0 active:scale-[0.98] transition-transform"
                 >
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:border-[#2563EB]/30 transition-colors">
+                  <div className="w-12 h-12 sm:w-12 sm:h-12 border border-white/[0.06] flex items-center justify-center shrink-0 group-hover:border-[#2563EB]/30 transition-colors rounded">
                     <span
-                      className="text-xs sm:text-sm font-bold text-[#2563EB]/40 group-hover:text-[#2563EB] transition-colors"
+                      className="text-sm sm:text-sm font-bold text-[#2563EB]/40 group-hover:text-[#2563EB] transition-colors"
                       style={{ fontFamily: "var(--font-display)" }}
                     >
                       {uni.universityName.split(" ").map(w => w[0]).join("").slice(0, 2)}
                     </span>
                   </div>
-                  <div className="min-w-0">
-                    <h4 className="text-xs sm:text-sm font-semibold text-[#F0F2F8] group-hover:text-[#2563EB] transition-colors truncate" style={{ fontFamily: "var(--font-display)" }}>
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-sm sm:text-sm font-semibold text-[#F0F2F8] group-hover:text-[#2563EB] transition-colors truncate leading-tight" style={{ fontFamily: "var(--font-display)" }}>
                       {uni.universityName}
                     </h4>
-                    <div className="flex items-center gap-1 mt-0.5 sm:mt-1 text-[11px] sm:text-xs text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
-                      <MapPin className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> {uni.city}
+                    <div className="flex items-center gap-1.5 mt-1.5 sm:mt-1 text-xs sm:text-xs text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>
+                      <MapPin className="w-3 h-3 sm:w-3 sm:h-3 shrink-0" /> <span className="truncate">{uni.city}</span>
                     </div>
                   </div>
                 </motion.a>

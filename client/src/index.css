@@ -182,12 +182,28 @@
     height: auto;
   }
   
-  /* Enhanced mobile touch targets */
+  /* Enhanced mobile touch targets and interactions */
   @media (max-width: 640px) {
     button, a, [role="button"] {
       min-height: 44px;
       min-width: 44px;
     }
+    
+    /* Improve touch scrolling */
+    * {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Prevent text selection on tap */
+    button, a {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+  }
+  
+  /* Touch manipulation for better mobile performance */
+  .touch-manipulation {
+    touch-action: manipulation;
   }
   
   /* Smooth scrolling */

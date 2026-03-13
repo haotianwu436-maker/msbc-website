@@ -73,8 +73,12 @@ export async function uploadImage(
   const bucketName = STORAGE_BUCKETS[bucket];
   const fileExt = file.name.split(".").pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-  const filePath = `${bucketName}/${fileName}`;
+  // 注意：文件路径不应该包含 bucket 名称，因为已经在 .from(bucketName) 中指定了
+  const filePath = fileName;
 
+  console.log(`📤 上传到 bucket: ${bucketName}, 文件路径: ${filePath}`);
+
+  // 直接尝试上传（不检查 bucket 是否存在，因为 listBuckets 需要认证）
   const { data, error } = await supabase.storage
     .from(bucketName)
     .upload(filePath, file, {
@@ -83,7 +87,16 @@ export async function uploadImage(
     });
 
   if (error) {
-    console.error("Upload error:", error);
+    console.error("❌ Upload error:", error);
+    console.error("   Bucket:", bucketName);
+    console.error("   File path:", filePath);
+    console.error("   Error details:", JSON.stringify(error, null, 2));
+    
+    // 提供更友好的错误信息
+    if (error.message?.includes("Bucket") || error.message?.includes("bucket")) {
+      throw new Error(`Bucket "${bucketName}" 不存在或无法访问。请检查：\n1. 在 Supabase Dashboard > Storage 中创建 bucket "${bucketName}"\n2. 确保 bucket 设置为 Public\n3. 检查 Storage 策略是否正确配置`);
+    }
+    
     throw new Error(`上传失败: ${error.message}`);
   }
 
@@ -92,5 +105,6 @@ export async function uploadImage(
     .from(bucketName)
     .getPublicUrl(filePath);
 
+  console.log(`✅ 上传成功: ${urlData.publicUrl}`);
   return urlData.publicUrl;
 }

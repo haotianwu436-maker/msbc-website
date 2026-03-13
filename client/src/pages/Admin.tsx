@@ -3,7 +3,7 @@
  * Non-technical content management interface.
  * Password-protected. Uses localStorage for data persistence.
  */
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, memo } from "react";
 import { useCmsData, useAdminAuth } from "@/hooks/useCmsData";
 import { useSupabaseCms } from "@/hooks/useSupabaseCms";
 import { useSupabaseAuth } from "@/hooks/useSupabaseAuth";
@@ -198,25 +198,73 @@ const navItems = [
 ];
 
 // ─── Field Editor Components ──────────────────────────────────
-function TextField({ label, value, onChange, multiline, mono }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean; mono?: boolean }) {
-  const cls = `w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] text-white text-sm placeholder:text-[#4B5563] focus:outline-none focus:border-[#2563EB]/50 ${mono ? "font-mono text-xs" : ""}`;
+// 优化的 TextField 组件 - 使用非受控输入，只在失去焦点时更新，避免输入时卡顿
+const TextField = memo(({ label, value, onChange, multiline, mono }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean; mono?: boolean }) => {
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const [localValue, setLocalValue] = useState(value);
+  
+  // 当外部 value 变化时同步（比如切换编辑项时）
+  useEffect(() => {
+    if (value !== localValue && document.activeElement !== inputRef.current) {
+      setLocalValue(value);
+      if (inputRef.current) {
+        inputRef.current.value = value;
+      }
+    }
+  }, [value]);
+  
+  const cls = `w-full px-3 py-2.5 sm:py-2 bg-white/[0.04] border border-white/[0.08] text-white text-base sm:text-sm placeholder:text-[#4B5563] focus:outline-none focus:border-[#2563EB]/50 ${mono ? "font-mono text-xs" : ""} touch-manipulation`;
+  
+  const handleBlur = () => {
+    const newValue = inputRef.current?.value || "";
+    if (newValue !== value) {
+      setLocalValue(newValue);
+      onChange(newValue);
+    }
+  };
+  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // 只更新本地状态，不触发 onChange 回调
+    const newValue = e.target.value;
+    setLocalValue(newValue);
+    if (inputRef.current) {
+      inputRef.current.value = newValue;
+    }
+  };
+  
   return (
     <div className="space-y-1.5">
       <label className="block text-xs font-medium text-[#9CA3AF] uppercase tracking-wider" style={{ fontFamily: "var(--font-mono)" }}>{label}</label>
       {multiline ? (
-        <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={4} className={cls} style={{ fontFamily: mono ? "var(--font-mono)" : "var(--font-body)" }} />
+        <textarea 
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          defaultValue={value}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          rows={4} 
+          className={cls} 
+          style={{ fontFamily: mono ? "var(--font-mono)" : "var(--font-body)" }} 
+        />
       ) : (
-        <input type="text" value={value} onChange={(e) => onChange(e.target.value)} className={cls} style={{ fontFamily: mono ? "var(--font-mono)" : "var(--font-body)" }} />
+        <input 
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          type="text" 
+          defaultValue={value}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          className={cls} 
+          style={{ fontFamily: mono ? "var(--font-mono)" : "var(--font-body)" }} 
+        />
       )}
     </div>
   );
-}
+});
 
 function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: { value: string; label: string }[] }) {
   return (
     <div className="space-y-1.5">
       <label className="block text-xs font-medium text-[#9CA3AF] uppercase tracking-wider" style={{ fontFamily: "var(--font-mono)" }}>{label}</label>
-      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2 bg-white/[0.04] border border-white/[0.08] text-white text-sm focus:outline-none focus:border-[#2563EB]/50" style={{ fontFamily: "var(--font-body)" }}>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="w-full px-3 py-2.5 sm:py-2 bg-white/[0.04] border border-white/[0.08] text-white text-base sm:text-sm focus:outline-none focus:border-[#2563EB]/50 touch-manipulation min-h-[44px] sm:min-h-0" style={{ fontFamily: "var(--font-body)" }}>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
     </div>
@@ -225,8 +273,8 @@ function SelectField({ label, value, onChange, options }: { label: string; value
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white/[0.02] border border-white/[0.06] p-4 sm:p-6 space-y-4">
-      <h3 className="text-sm font-semibold text-[#F0F2F8] uppercase tracking-wider" style={{ fontFamily: "var(--font-display)" }}>{title}</h3>
+    <div className="bg-white/[0.02] border border-white/[0.06] p-4 sm:p-6 space-y-3 sm:space-y-4">
+      <h3 className="text-xs sm:text-sm font-semibold text-[#F0F2F8] uppercase tracking-wider" style={{ fontFamily: "var(--font-display)" }}>{title}</h3>
       {children}
     </div>
   );
@@ -335,6 +383,7 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
   const [saving, setSaving] = useState(false);
   const [localSpeaker, setLocalSpeaker] = useState<Speaker | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const localSpeakerRef = useRef<Speaker | null>(null);
   
   // 检查是否是 Supabase CMS
   const isSupabase = "isConfigured" in cms && cms.isConfigured;
@@ -345,23 +394,27 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
   // 保存待处理的更改
   const pendingChangesRef = useRef<Partial<Speaker>>({});
 
-  // 防抖保存函数
-  const debouncedSave = useCallback((id: string, patch: Partial<Speaker>) => {
+  // 优化的输入处理函数 - 直接更新 ref，减少状态更新
+  const handleInputChange = useCallback((id: string, field: keyof Speaker, value: any) => {
+    // 更新 ref（不触发重新渲染）
+    if (localSpeakerRef.current && localSpeakerRef.current.speakerId === id) {
+      localSpeakerRef.current = { ...localSpeakerRef.current, [field]: value };
+      // 更新状态用于显示（但使用函数式更新减少不必要的渲染）
+      setLocalSpeaker((prev) => {
+        if (prev && prev.speakerId === id) {
+          return { ...prev, [field]: value };
+        }
+        return prev;
+      });
+    }
+
     // 清除之前的定时器
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
-    // 累积所有更改
-    pendingChangesRef.current = { ...pendingChangesRef.current, ...patch };
-
-    // 立即更新本地状态（让 UI 响应快）
-    setLocalSpeaker((prev) => {
-      if (prev && prev.speakerId === id) {
-        return { ...prev, ...pendingChangesRef.current };
-      }
-      return prev;
-    });
+    // 累积更改
+    pendingChangesRef.current = { ...pendingChangesRef.current, [field]: value };
 
     // 如果是 localStorage，立即保存
     if (!isSupabase) {
@@ -372,7 +425,7 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
       return;
     }
 
-    // 如果是 Supabase，延迟保存（防抖）- 停止输入 2 秒后才保存
+    // 如果是 Supabase，延迟保存（防抖）- 停止输入 1 秒后才保存
     saveTimeoutRef.current = setTimeout(async () => {
       if (isSupabase && "updateSpeaker" in cms && cms.updateSpeaker && Object.keys(pendingChangesRef.current).length > 0) {
         try {
@@ -380,7 +433,6 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
           const changesToSave = { ...pendingChangesRef.current };
           pendingChangesRef.current = {};
           await cms.updateSpeaker(id, changesToSave);
-          toast.success("保存成功");
         } catch (error: any) {
           console.error("Failed to update speaker:", error);
           const errorMessage = error?.message || error?.toString() || "未知错误";
@@ -391,8 +443,15 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
           setSaving(false);
         }
       }
-    }, 2000); // 2 秒延迟 - 停止输入 2 秒后才保存
+    }, 1000); // 1 秒延迟
   }, [isSupabase, cms]);
+
+  // 兼容旧的 debouncedSave API
+  const debouncedSave = useCallback((id: string, patch: Partial<Speaker>) => {
+    Object.entries(patch).forEach(([key, value]) => {
+      handleInputChange(id, key as keyof Speaker, value);
+    });
+  }, [handleInputChange]);
 
   // 清理定时器
   useEffect(() => {
@@ -473,11 +532,14 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
     if (editing) {
       const speaker = speakers.find((s) => s.speakerId === editing);
       if (speaker) {
-        setLocalSpeaker(speaker);
+        const speakerCopy = { ...speaker };
+        setLocalSpeaker(speakerCopy);
+        localSpeakerRef.current = speakerCopy;
         pendingChangesRef.current = {}; // 重置待处理的更改
       }
     } else {
       setLocalSpeaker(null);
+      localSpeakerRef.current = null;
       pendingChangesRef.current = {};
       // 清除未保存的更改
       if (saveTimeoutRef.current) {
@@ -502,7 +564,7 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
                 </div>
               ) : (
                 <div className="text-xs text-[#8b99b5]">
-                  停止输入 2 秒后自动保存
+                  停止输入 1 秒后自动保存
                 </div>
               )}
               <button
@@ -635,29 +697,66 @@ function SpeakersPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnTyp
 }
 
 // ─── Generic List Panel (Agenda, Sponsors, Universities, FAQ, Contact) ──
-function AgendaPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
+function AgendaPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnType<typeof useSupabaseCms> }) {
   const [editing, setEditing] = useState<string | null>(null);
+  const [localAgendaSessions, setLocalAgendaSessions] = useState<AgendaSession[]>(cms.agendaSessions);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    setLocalAgendaSessions(cms.agendaSessions);
+  }, [cms.agendaSessions]);
+  
+  const isSupabaseConfigured = ("isConfigured" in cms && cms.isConfigured) || 
+    !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+  
+  const debouncedSave = useCallback((sessions: AgendaSession[]) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    if (!isSupabaseConfigured) {
+      cms.setAgendaSessions(sessions);
+      return;
+    }
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        if ("setAgendaSessions" in cms && typeof cms.setAgendaSessions === "function") {
+          await cms.setAgendaSessions(sessions);
+        }
+      } catch (error) {
+        console.error("Failed to save agenda sessions:", error);
+        toast.error("保存失败", { description: error instanceof Error ? error.message : "未知错误" });
+      }
+    }, 1000);
+  }, [cms, isSupabaseConfigured]);
 
   const addSession = () => {
     const newSession: AgendaSession = {
       sessionId: `ses-${Date.now()}`, title: "New Session", shortDescription: "", date: "2026-08-29",
       startTime: "09:00", endTime: "10:00", format: "keynote", track: "Main Stage", stage: "Main Hall",
-      speakerIds: [], featured: false, sortOrder: cms.agendaSessions.length + 1,
+      speakerIds: [], featured: false, sortOrder: localAgendaSessions.length + 1,
     };
-    cms.setAgendaSessions([...cms.agendaSessions, newSession]);
+    const updated = [...localAgendaSessions, newSession];
+    setLocalAgendaSessions(updated);
+    debouncedSave(updated);
     setEditing(newSession.sessionId);
   };
 
   const update = (id: string, patch: Partial<AgendaSession>) => {
-    cms.setAgendaSessions(cms.agendaSessions.map((s) => s.sessionId === id ? { ...s, ...patch } : s));
+    const updated = localAgendaSessions.map((s) => s.sessionId === id ? { ...s, ...patch } : s);
+    setLocalAgendaSessions(updated);
+    debouncedSave(updated);
   };
 
   const del = (id: string) => {
-    cms.setAgendaSessions(cms.agendaSessions.filter((s) => s.sessionId !== id));
+    const updated = localAgendaSessions.filter((s) => s.sessionId !== id);
+    setLocalAgendaSessions(updated);
+    debouncedSave(updated);
     if (editing === id) setEditing(null);
   };
 
-  const editingItem = cms.agendaSessions.find((s) => s.sessionId === editing);
+  const editingItem = localAgendaSessions.find((s) => s.sessionId === editing);
 
   if (editingItem) {
     return (
@@ -690,12 +789,12 @@ function AgendaPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{cms.agendaSessions.length} sessions</span>
+        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{localAgendaSessions.length} sessions</span>
         <button onClick={addSession} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-xs font-medium hover:bg-[#1D4ED8] transition-colors" style={{ fontFamily: "var(--font-display)" }}>
           <Plus className="w-3 h-3" /> Add Session
         </button>
       </div>
-      {cms.agendaSessions.sort((a, b) => a.sortOrder - b.sortOrder).map((session) => (
+      {localAgendaSessions.sort((a, b) => a.sortOrder - b.sortOrder).map((session) => (
         <div key={session.sessionId} className="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-[#F0F2F8] truncate" style={{ fontFamily: "var(--font-display)" }}>{session.title}</p>
@@ -709,16 +808,59 @@ function AgendaPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   );
 }
 
-function SponsorsPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
+function SponsorsPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnType<typeof useSupabaseCms> }) {
   const [editing, setEditing] = useState<string | null>(null);
+  const [localSponsors, setLocalSponsors] = useState<Sponsor[]>(cms.sponsors);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    setLocalSponsors(cms.sponsors);
+  }, [cms.sponsors]);
+  
+  const isSupabaseConfigured = ("isConfigured" in cms && cms.isConfigured) || 
+    !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+  
+  const debouncedSave = useCallback((sponsors: Sponsor[]) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    if (!isSupabaseConfigured) {
+      cms.setSponsors(sponsors);
+      return;
+    }
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        if ("setSponsors" in cms && typeof cms.setSponsors === "function") {
+          await cms.setSponsors(sponsors);
+        }
+      } catch (error) {
+        console.error("Failed to save sponsors:", error);
+        toast.error("保存失败", { description: error instanceof Error ? error.message : "未知错误" });
+      }
+    }, 1000);
+  }, [cms, isSupabaseConfigured]);
+  
   const addSponsor = () => {
-    const n: Sponsor = { sponsorId: `spo-${Date.now()}`, companyName: "New Sponsor", logo: "", tier: "silver", websiteUrl: "#", shortDescription: "", featured: false, displayOrder: cms.sponsors.length + 1 };
-    cms.setSponsors([...cms.sponsors, n]);
+    const n: Sponsor = { sponsorId: `spo-${Date.now()}`, companyName: "New Sponsor", logo: "", tier: "silver", websiteUrl: "#", shortDescription: "", featured: false, displayOrder: localSponsors.length + 1 };
+    const updated = [...localSponsors, n];
+    setLocalSponsors(updated);
+    debouncedSave(updated);
     setEditing(n.sponsorId);
   };
-  const update = (id: string, patch: Partial<Sponsor>) => cms.setSponsors(cms.sponsors.map((s) => s.sponsorId === id ? { ...s, ...patch } : s));
-  const del = (id: string) => { cms.setSponsors(cms.sponsors.filter((s) => s.sponsorId !== id)); if (editing === id) setEditing(null); };
-  const editingItem = cms.sponsors.find((s) => s.sponsorId === editing);
+  const update = (id: string, patch: Partial<Sponsor>) => {
+    const updated = localSponsors.map((s) => s.sponsorId === id ? { ...s, ...patch } : s);
+    setLocalSponsors(updated);
+    debouncedSave(updated);
+  };
+  const del = (id: string) => {
+    const updated = localSponsors.filter((s) => s.sponsorId !== id);
+    setLocalSponsors(updated);
+    debouncedSave(updated);
+    if (editing === id) setEditing(null);
+  };
+  const editingItem = localSponsors.find((s) => s.sponsorId === editing);
 
   if (editingItem) {
     return (
@@ -743,10 +885,10 @@ function SponsorsPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{cms.sponsors.length} sponsors</span>
+        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{localSponsors.length} sponsors</span>
         <button onClick={addSponsor} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-xs font-medium hover:bg-[#1D4ED8]"><Plus className="w-3 h-3" /> Add Sponsor</button>
       </div>
-      {cms.sponsors.sort((a, b) => a.displayOrder - b.displayOrder).map((s) => (
+      {localSponsors.sort((a, b) => a.displayOrder - b.displayOrder).map((s) => (
         <div key={s.sponsorId} className="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-[#F0F2F8] truncate" style={{ fontFamily: "var(--font-display)" }}>{s.companyName}</p>
@@ -763,24 +905,140 @@ function SponsorsPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
 function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnType<typeof useSupabaseCms> }) {
   const [editing, setEditing] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [localUniversities, setLocalUniversities] = useState<University[]>(cms.universities);
+  const [editingItem, setEditingItem] = useState<University | null>(null);
+  const editingItemRef = useRef<University | null>(null);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Sync local state with CMS data when it changes
+  useEffect(() => {
+    setLocalUniversities(cms.universities);
+  }, [cms.universities]);
+  
+  // 当切换到编辑模式时，初始化编辑项（只在 editing 变化时执行，避免频繁更新）
+  useEffect(() => {
+    if (editing) {
+      const item = localUniversities.find((u) => u.universityId === editing);
+      if (item) {
+        const itemCopy = { ...item };
+        setEditingItem(itemCopy);
+        editingItemRef.current = itemCopy;
+      }
+    } else {
+      setEditingItem(null);
+      editingItemRef.current = null;
+      if (saveTimeoutRef.current) {
+        clearTimeout(saveTimeoutRef.current);
+      }
+    }
+    // 移除 localUniversities 依赖，只在 editing 变化时执行
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editing]);
   
   // Check if Supabase is configured (check both cms.isConfigured and environment variables)
   const isSupabaseConfigured = 
     ("isConfigured" in cms && cms.isConfigured) || 
     !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
   
+  // 使用 ref 存储最新的 universities 数组，避免依赖导致重新创建函数
+  const localUniversitiesRef = useRef<University[]>(cms.universities);
+  useEffect(() => {
+    localUniversitiesRef.current = localUniversities;
+  }, [localUniversities]);
+
+  // 状态更新防抖 ref
+  const updateStateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // 优化的更新函数 - 最小化状态更新
+  const update = useCallback((id: string, patch: Partial<University>) => {
+    // 直接更新 ref（不触发重新渲染）
+    if (editingItemRef.current && editingItemRef.current.universityId === id) {
+      editingItemRef.current = { ...editingItemRef.current, ...patch };
+    }
+
+    // 清除状态更新定时器
+    if (updateStateTimeoutRef.current) {
+      clearTimeout(updateStateTimeoutRef.current);
+    }
+
+    // 延迟更新状态（减少渲染频率）- 只在停止输入 300ms 后更新 UI
+    updateStateTimeoutRef.current = setTimeout(() => {
+      if (editingItemRef.current && editingItemRef.current.universityId === id) {
+        setEditingItem({ ...editingItemRef.current });
+      }
+      updateStateTimeoutRef.current = null;
+    }, 300);
+
+    // 清除保存定时器
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+
+    // 统一使用防抖保存（延迟更长，减少保存频率）
+    saveTimeoutRef.current = setTimeout(() => {
+      if (editingItemRef.current && editingItemRef.current.universityId === id) {
+        const currentUniversities = localUniversitiesRef.current;
+        const updated = currentUniversities.map((u) => u.universityId === id ? editingItemRef.current! : u);
+        setLocalUniversities(updated);
+        
+        if (!isSupabaseConfigured) {
+          cms.setUniversities(updated);
+        } else {
+          if ("setUniversities" in cms && typeof cms.setUniversities === "function") {
+            (cms.setUniversities as (unis: University[]) => Promise<void>)(updated).catch((error) => {
+              console.error("Failed to save universities:", error);
+              toast.error("保存失败", { description: error instanceof Error ? error.message : "未知错误" });
+            });
+          }
+        }
+        saveTimeoutRef.current = null;
+      }
+    }, 1500); // 1.5 秒后保存
+  }, [isSupabaseConfigured, cms]);
+  
+  // Debounced save function for Supabase
+  const debouncedSave = useCallback((universities: University[]) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    // If localStorage CMS, save immediately
+    if (!isSupabaseConfigured) {
+      cms.setUniversities(universities);
+      return;
+    }
+    
+    // If Supabase CMS, debounce with 1 second delay
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        if ("setUniversities" in cms && typeof cms.setUniversities === "function") {
+          await cms.setUniversities(universities);
+        }
+      } catch (error) {
+        console.error("Failed to save universities:", error);
+        toast.error("保存失败", { description: error instanceof Error ? error.message : "未知错误" });
+      }
+    }, 1000); // 1 second delay
+  }, [cms, isSupabaseConfigured]);
+  
   const addUni = () => {
-    const n: University = { universityId: `uni-${Date.now()}`, universityName: "New University", logo: "", category: "participating", roleDescription: "", websiteUrl: "#", city: "Kuala Lumpur", displayOrder: cms.universities.length + 1 };
-    cms.setUniversities([...cms.universities, n]);
+    const n: University = { universityId: `uni-${Date.now()}`, universityName: "New University", logo: "", category: "participating", roleDescription: "", websiteUrl: "#", city: "Kuala Lumpur", displayOrder: localUniversities.length + 1 };
+    const updated = [...localUniversities, n];
+    setLocalUniversities(updated);
+    debouncedSave(updated);
     setEditing(n.universityId);
   };
-  const update = (id: string, patch: Partial<University>) => cms.setUniversities(cms.universities.map((u) => u.universityId === id ? { ...u, ...patch } : u));
-  const del = (id: string) => { cms.setUniversities(cms.universities.filter((u) => u.universityId !== id)); if (editing === id) setEditing(null); };
-  const editingItem = cms.universities.find((u) => u.universityId === editing);
+  
+  const del = (id: string) => {
+    const updated = localUniversities.filter((u) => u.universityId !== id);
+    setLocalUniversities(updated);
+    debouncedSave(updated);
+    if (editing === id) setEditing(null);
+  };
 
   const handleLogoUpload = async (url: string) => {
-    if (editingItem) {
-      update(editing!, { logo: url });
+    if (editingItem && editing) {
+      update(editing, { logo: url });
       setUploadError(null);
       toast.success("Logo 上传成功");
     }
@@ -793,8 +1051,8 @@ function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> | Retur
 
   if (editingItem) {
     return (
-      <div className="space-y-6">
-        <button onClick={() => setEditing(null)} className="flex items-center gap-2 text-sm text-[#2563EB]"><ArrowLeft className="w-4 h-4" /> Back</button>
+      <div className="space-y-4 sm:space-y-6">
+        <button onClick={() => setEditing(null)} className="flex items-center gap-2 text-sm sm:text-base text-[#2563EB] min-h-[44px] px-2 -ml-2 touch-manipulation"><ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" /> Back</button>
         <SectionCard title={`Edit: ${editingItem.universityName}`}>
           <TextField label="University Name" value={editingItem.universityName} onChange={(v) => update(editing!, { universityName: v })} />
           
@@ -805,7 +1063,7 @@ function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> | Retur
                 Logo Upload
               </label>
               <ImageUpload
-                bucket="logos"
+                bucket="LOGOS"
                 currentUrl={editingItem.logo || undefined}
                 onUploadComplete={handleLogoUpload}
                 onError={handleUploadError}
@@ -844,33 +1102,78 @@ function UniversitiesPanel({ cms }: { cms: ReturnType<typeof useCmsData> | Retur
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{cms.universities.length} universities</span>
+        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{localUniversities.length} universities</span>
         <button onClick={addUni} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-xs font-medium hover:bg-[#1D4ED8]"><Plus className="w-3 h-3" /> Add University</button>
       </div>
-      {cms.universities.sort((a, b) => a.displayOrder - b.displayOrder).map((u) => (
-        <div key={u.universityId} className="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4 flex items-center gap-3">
+      {localUniversities.sort((a, b) => a.displayOrder - b.displayOrder).map((u) => (
+        <div key={u.universityId} className="bg-white/[0.02] border border-white/[0.06] p-4 sm:p-3 sm:p-4 flex items-center gap-3 sm:gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-[#F0F2F8] truncate" style={{ fontFamily: "var(--font-display)" }}>{u.universityName}</p>
+            <p className="text-sm sm:text-sm font-medium text-[#F0F2F8] truncate" style={{ fontFamily: "var(--font-display)" }}>{u.universityName}</p>
             <p className="text-xs text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{u.category} · {u.city}</p>
           </div>
-          <button onClick={() => setEditing(u.universityId)} className="p-1.5 text-[#6B7280] hover:text-[#2563EB]"><ChevronRight className="w-4 h-4" /></button>
-          <button onClick={() => del(u.universityId)} className="p-1.5 text-[#6B7280] hover:text-red-400"><Trash2 className="w-3.5 h-3.5" /></button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => setEditing(u.universityId)} className="p-2 sm:p-1.5 text-[#6B7280] hover:text-[#2563EB] min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center touch-manipulation"><ChevronRight className="w-5 h-5 sm:w-4 sm:h-4" /></button>
+            <button onClick={() => del(u.universityId)} className="p-2 sm:p-1.5 text-[#6B7280] hover:text-red-400 min-w-[44px] min-h-[44px] sm:min-w-0 sm:min-h-0 flex items-center justify-center touch-manipulation"><Trash2 className="w-5 h-5 sm:w-3.5 sm:h-3.5" /></button>
+          </div>
         </div>
       ))}
     </div>
   );
 }
 
-function FaqPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
+function FaqPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnType<typeof useSupabaseCms> }) {
   const [editing, setEditing] = useState<string | null>(null);
+  const [localFaqItems, setLocalFaqItems] = useState<FaqItem[]>(cms.faqItems);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    setLocalFaqItems(cms.faqItems);
+  }, [cms.faqItems]);
+  
+  const isSupabaseConfigured = ("isConfigured" in cms && cms.isConfigured) || 
+    !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+  
+  const debouncedSave = useCallback((faqItems: FaqItem[]) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    if (!isSupabaseConfigured) {
+      cms.setFaqItems(faqItems);
+      return;
+    }
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        if ("setFaqItems" in cms && typeof cms.setFaqItems === "function") {
+          await cms.setFaqItems(faqItems);
+        }
+      } catch (error) {
+        console.error("Failed to save FAQ items:", error);
+        toast.error("保存失败", { description: error instanceof Error ? error.message : "未知错误" });
+      }
+    }, 1000);
+  }, [cms, isSupabaseConfigured]);
+  
   const addFaq = () => {
-    const n: FaqItem = { faqId: `faq-${Date.now()}`, category: "general", question: "New Question?", answer: "Answer here.", sortOrder: cms.faqItems.length + 1 };
-    cms.setFaqItems([...cms.faqItems, n]);
+    const n: FaqItem = { faqId: `faq-${Date.now()}`, category: "general", question: "New Question?", answer: "Answer here.", sortOrder: localFaqItems.length + 1 };
+    const updated = [...localFaqItems, n];
+    setLocalFaqItems(updated);
+    debouncedSave(updated);
     setEditing(n.faqId);
   };
-  const update = (id: string, patch: Partial<FaqItem>) => cms.setFaqItems(cms.faqItems.map((f) => f.faqId === id ? { ...f, ...patch } : f));
-  const del = (id: string) => { cms.setFaqItems(cms.faqItems.filter((f) => f.faqId !== id)); if (editing === id) setEditing(null); };
-  const editingItem = cms.faqItems.find((f) => f.faqId === editing);
+  const update = (id: string, patch: Partial<FaqItem>) => {
+    const updated = localFaqItems.map((f) => f.faqId === id ? { ...f, ...patch } : f);
+    setLocalFaqItems(updated);
+    debouncedSave(updated);
+  };
+  const del = (id: string) => {
+    const updated = localFaqItems.filter((f) => f.faqId !== id);
+    setLocalFaqItems(updated);
+    debouncedSave(updated);
+    if (editing === id) setEditing(null);
+  };
+  const editingItem = localFaqItems.find((f) => f.faqId === editing);
 
   if (editingItem) {
     return (
@@ -892,10 +1195,10 @@ function FaqPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{cms.faqItems.length} items</span>
+        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{localFaqItems.length} items</span>
         <button onClick={addFaq} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-xs font-medium hover:bg-[#1D4ED8]"><Plus className="w-3 h-3" /> Add FAQ</button>
       </div>
-      {cms.faqItems.sort((a, b) => a.sortOrder - b.sortOrder).map((f) => (
+      {localFaqItems.sort((a, b) => a.sortOrder - b.sortOrder).map((f) => (
         <div key={f.faqId} className="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-[#F0F2F8] truncate" style={{ fontFamily: "var(--font-display)" }}>{f.question}</p>
@@ -909,16 +1212,59 @@ function FaqPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   );
 }
 
-function ContactPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
+function ContactPanel({ cms }: { cms: ReturnType<typeof useCmsData> | ReturnType<typeof useSupabaseCms> }) {
   const [editing, setEditing] = useState<string | null>(null);
+  const [localContactMethods, setLocalContactMethods] = useState<ContactMethod[]>(cms.contactMethods);
+  const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  useEffect(() => {
+    setLocalContactMethods(cms.contactMethods);
+  }, [cms.contactMethods]);
+  
+  const isSupabaseConfigured = ("isConfigured" in cms && cms.isConfigured) || 
+    !!(import.meta.env.VITE_SUPABASE_URL && import.meta.env.VITE_SUPABASE_ANON_KEY);
+  
+  const debouncedSave = useCallback((contactMethods: ContactMethod[]) => {
+    if (saveTimeoutRef.current) {
+      clearTimeout(saveTimeoutRef.current);
+    }
+    
+    if (!isSupabaseConfigured) {
+      cms.setContactMethods(contactMethods);
+      return;
+    }
+    
+    saveTimeoutRef.current = setTimeout(async () => {
+      try {
+        if ("setContactMethods" in cms && typeof cms.setContactMethods === "function") {
+          await cms.setContactMethods(contactMethods);
+        }
+      } catch (error) {
+        console.error("Failed to save contact methods:", error);
+        toast.error("保存失败", { description: error instanceof Error ? error.message : "未知错误" });
+      }
+    }, 1000);
+  }, [cms, isSupabaseConfigured]);
+  
   const addContact = () => {
-    const n: ContactMethod = { contactId: `ct-${Date.now()}`, contactType: "general", label: "New Contact", description: "", ctaLabel: "Contact", email: "hello@msbc.my", displayOrder: cms.contactMethods.length + 1 };
-    cms.setContactMethods([...cms.contactMethods, n]);
+    const n: ContactMethod = { contactId: `ct-${Date.now()}`, contactType: "general", label: "New Contact", description: "", ctaLabel: "Contact", email: "hello@msbc.my", displayOrder: localContactMethods.length + 1 };
+    const updated = [...localContactMethods, n];
+    setLocalContactMethods(updated);
+    debouncedSave(updated);
     setEditing(n.contactId);
   };
-  const update = (id: string, patch: Partial<ContactMethod>) => cms.setContactMethods(cms.contactMethods.map((c) => c.contactId === id ? { ...c, ...patch } : c));
-  const del = (id: string) => { cms.setContactMethods(cms.contactMethods.filter((c) => c.contactId !== id)); if (editing === id) setEditing(null); };
-  const editingItem = cms.contactMethods.find((c) => c.contactId === editing);
+  const update = (id: string, patch: Partial<ContactMethod>) => {
+    const updated = localContactMethods.map((c) => c.contactId === id ? { ...c, ...patch } : c);
+    setLocalContactMethods(updated);
+    debouncedSave(updated);
+  };
+  const del = (id: string) => {
+    const updated = localContactMethods.filter((c) => c.contactId !== id);
+    setLocalContactMethods(updated);
+    debouncedSave(updated);
+    if (editing === id) setEditing(null);
+  };
+  const editingItem = localContactMethods.find((c) => c.contactId === editing);
 
   if (editingItem) {
     return (
@@ -940,10 +1286,10 @@ function ContactPanel({ cms }: { cms: ReturnType<typeof useCmsData> }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{cms.contactMethods.length} contacts</span>
+        <span className="text-sm text-[#6B7280]" style={{ fontFamily: "var(--font-mono)" }}>{localContactMethods.length} contacts</span>
         <button onClick={addContact} className="flex items-center gap-1.5 px-3 py-1.5 bg-[#2563EB] text-white text-xs font-medium hover:bg-[#1D4ED8]"><Plus className="w-3 h-3" /> Add Contact</button>
       </div>
-      {cms.contactMethods.sort((a, b) => a.displayOrder - b.displayOrder).map((c) => (
+      {localContactMethods.sort((a, b) => a.displayOrder - b.displayOrder).map((c) => (
         <div key={c.contactId} className="bg-white/[0.02] border border-white/[0.06] p-3 sm:p-4 flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-[#F0F2F8] truncate" style={{ fontFamily: "var(--font-display)" }}>{c.label}</p>
@@ -1079,7 +1425,7 @@ export default function Admin() {
       case "speakers": return <SpeakersPanel cms={activeCms} />;
       case "agenda": return <AgendaPanel cms={cms} />;
       case "sponsors": return <SponsorsPanel cms={cms} />;
-      case "universities": return <UniversitiesPanel cms={cms} />;
+      case "universities": return <UniversitiesPanel cms={activeCms} />;
       case "faq": return <FaqPanel cms={cms} />;
       case "contact": return <ContactPanel cms={cms} />;
       case "hackathon": return <HackathonPanel cms={cms} />;
@@ -1090,16 +1436,17 @@ export default function Admin() {
 
   return (
     <div className="min-h-screen bg-[#07090F] text-[#F0F2F8] flex">
-      {/* Mobile sidebar toggle */}
+      {/* Mobile sidebar toggle - 优化移动端触摸目标 */}
       <button
         onClick={() => setSidebarOpen(!sidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white/[0.06] border border-white/[0.08] text-white"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-white/[0.06] border border-white/[0.08] text-white rounded-lg min-w-[44px] min-h-[44px] flex items-center justify-center touch-manipulation"
+        aria-label="Toggle menu"
       >
-        {sidebarOpen ? <X className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
+        {sidebarOpen ? <X className="w-6 h-6" /> : <Settings className="w-6 h-6" />}
       </button>
 
-      {/* Sidebar */}
-      <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 bg-[#0A0D16] border-r border-white/[0.06] flex flex-col transform transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      {/* Sidebar - 优化移动端体验 */}
+      <aside className={`fixed lg:static inset-y-0 left-0 z-40 w-64 sm:w-72 bg-[#0A0D16] border-r border-white/[0.06] flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} shadow-xl lg:shadow-none`}>
         <div className="p-4 border-b border-white/[0.06]">
           <div className="flex items-center gap-2">
             <span className="text-lg font-bold text-white" style={{ fontFamily: "var(--font-display)" }}>MSBC</span>
@@ -1112,14 +1459,14 @@ export default function Admin() {
             <button
               key={item.id}
               onClick={() => { setActivePanel(item.id); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-2.5 px-3 py-2 text-sm transition-colors ${
+              className={`w-full flex items-center gap-2.5 px-3 py-2.5 sm:py-2 text-sm transition-colors min-h-[44px] touch-manipulation ${
                 activePanel === item.id
                   ? "bg-[#2563EB]/10 text-[#2563EB] border-l-2 border-[#2563EB]"
-                  : "text-[#9CA3AF] hover:text-white hover:bg-white/[0.03]"
+                  : "text-[#9CA3AF] hover:text-white hover:bg-white/[0.03] active:bg-white/[0.05]"
               }`}
               style={{ fontFamily: "var(--font-display)" }}
             >
-              <item.icon className="w-4 h-4 shrink-0" />
+              <item.icon className="w-5 h-5 sm:w-4 sm:h-4 shrink-0" />
               {item.label}
             </button>
           ))}
@@ -1164,9 +1511,9 @@ export default function Admin() {
 
       {/* Main Content */}
       <main className="flex-1 min-w-0">
-        <header className="sticky top-0 z-20 bg-[#07090F]/90 backdrop-blur-sm border-b border-white/[0.06] px-4 sm:px-6 lg:px-8 py-4">
+        <header className="sticky top-0 z-20 bg-[#07090F]/90 backdrop-blur-sm border-b border-white/[0.06] px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <h1 className="text-lg sm:text-xl font-bold text-[#F0F2F8] pl-10 lg:pl-0" style={{ fontFamily: "var(--font-display)" }}>
+            <h1 className="text-base sm:text-lg lg:text-xl font-bold text-[#F0F2F8] pl-10 lg:pl-0" style={{ fontFamily: "var(--font-display)" }}>
               {navItems.find((n) => n.id === activePanel)?.label}
             </h1>
             <div className="flex items-center gap-4">
@@ -1181,7 +1528,7 @@ export default function Admin() {
             </div>
           </div>
         </header>
-        <div className="p-4 sm:p-6 lg:p-8 max-w-4xl">
+        <div className="p-4 sm:p-6 lg:p-8 max-w-4xl pb-20 sm:pb-8">
           {renderPanel()}
         </div>
       </main>
